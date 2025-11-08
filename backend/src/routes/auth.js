@@ -1,8 +1,10 @@
 import { Router } from 'express'
-const r = Router()
+import { register, login, me } from '../controllers/authController.js'
+import { requireAuth } from '../middlewares/authMiddleware.js'
 
-r.get('/', (req, res) => {
-  res.json({ message: 'Auth route placeholder ✅' })
-})
+const r = Router()
+r.post('/register', register)
+r.post('/login', login)
+r.get('/me', requireAuth, me)
 
 export default r
