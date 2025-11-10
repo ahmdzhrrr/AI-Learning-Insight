@@ -13,7 +13,11 @@ export async function verifyPassword(user, password) {
 
 export async function createUser({ email, password, name }) {
   const existed = await findByEmail(email)
-  if (existed) throw new Error('EMAIL_TAK_UNIK')
+  if (existed) {
+    const e = new Error('email sudah digunakan')
+    e.code = '23505'
+    throw e
+  }
 
   const hash = await bcrypt.hash(password, 10)
   const u = await pool.query(

@@ -16,7 +16,6 @@ export async function addMetric(req, res, next) {
     if (!student) return res.status(404).json({ status: 'fail', message: 'siswa tidak ditemukan' })
 
     const payload = req.body ?? {}
-    // minimal validation
     if (!payload.date) payload.date = new Date().toISOString().slice(0, 10)
 
     const id = await metrics.create(student.id, payload)

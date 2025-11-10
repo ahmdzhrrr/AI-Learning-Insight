@@ -11,7 +11,7 @@ export async function register(req, res, next) {
   try {
     const { email, password, name } = req.body
     if (!email || !password || !name) {
-      return res.status(400).json({ status: 'fail', message: 'email, password, name wajib' })
+      return res.status(400).json({ status: 'fail', message: 'email, password, nama wajib diisi' })
     }
     const { user, student } = await users.createUser({ email, password, name })
     const token = signToken({ id: user.id, email: user.email })
@@ -20,10 +20,7 @@ export async function register(req, res, next) {
       data: { token, user: { id: user.id, email: user.email, name: user.name }, studentId: student.id }
     })
   } catch (err) {
-    if (err.message === 'EMAIL_TAK_UNIK') {
-      return res.status(400).json({ status: 'fail', message: 'email sudah digunakan' })
-    }
-    next(err)
+    return next(err)
   }
 }
 
