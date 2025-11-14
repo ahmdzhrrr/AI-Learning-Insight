@@ -1,4 +1,3 @@
-// src/services/metricsService.js
 import { pool } from '../db/pool.js'
 
 export async function getByUserId(userId) {
@@ -12,7 +11,6 @@ export async function getByUserId(userId) {
   return rows[0] || null
 }
 
-// upsert langsung dari body FE (manual entry dari form)
 export async function upsertDirect({ userId, features }) {
   const {
     study_hours, attendance, assignment_completion,
@@ -33,13 +31,7 @@ export async function upsertDirect({ userId, features }) {
   return getByUserId(userId)
 }
 
-// OPTIONAL: hitung metrics dari tabel dev_journey_* + exam_results
-// -> sesuaikan logic agregasi sesuai kebutuhanmu
 export async function recomputeFromRaw(userId) {
-  // Contoh agregasi:
-  // - study_hours: total/avg durasi dari dev_journey_trackings/tutorials (menit -> jam)
-  // - discussions/resources: dummy contoh (silakan ganti sesuai data real mu)
-  // - attendance: kalau belum ada sumber, isi null/0 (FE/ML boleh handle)
   const { rows } = await pool.query(
     `
     with t as (
