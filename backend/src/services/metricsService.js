@@ -10,15 +10,7 @@ const FEATURE_COLUMNS = [
   'pass_rate_kuis',
   'total_kuis_diambil',
   'avg_rating_submission',
-  'total_submissions',
-  'avg_durasi_article',
-  'avg_durasi_exam',
-  'avg_durasi_interactivecode',
-  'avg_durasi_quiz',
-  'count_article',
-  'count_exam',
-  'count_interactivecode',
-  'count_quiz'
+  'total_submissions'
 ]
 
 export async function upsertMetricsFromML(studentId, features) {

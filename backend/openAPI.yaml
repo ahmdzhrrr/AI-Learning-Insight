@@ -2,30 +2,14 @@ info:
   title: AI Learning Insight API (with ML)
   description: >
     RESTful API untuk aplikasi AI Learning Insight.
-    Mendukung JWT auth, manajemen metrics, dan integrasi FastAPI ML service.
+    Mendukung JWT auth, manajemen metrics (10 fitur perilaku belajar),
+    dan integrasi FastAPI ML service untuk prediksi gaya belajar.
   version: 1.0.0
 
 servers:
   - url: http://localhost:5000
 
 paths:
-
-  /auth/register:
-    post:
-      summary: Register user baru
-      requestBody:
-        required: true
-        content:
-          application/json:
-            example:
-              email: "user@mail.com"
-              password: "secret123"
-              name: "User Example"
-      responses:
-        "201":
-          description: Registrasi berhasil
-        "400":
-          description: Bad Request
 
   /auth/login:
     post:
@@ -35,8 +19,8 @@ paths:
         content:
           application/json:
             example:
-              email: "user@mail.com"
-              password: "secret123"
+              email: "nrizki@dicoding.com"
+              password: "12345"
       responses:
         "200":
           description: Login berhasil (mengembalikan access token)
@@ -56,7 +40,7 @@ paths:
 
   /users/{userId}/metrics:
     get:
-      summary: Melihat metrics user (18 fitur belajar)
+      summary: Melihat metrics user (10 fitur belajar)
       security:
         - bearerAuth: []
       parameters:
@@ -67,6 +51,20 @@ paths:
       responses:
         "200":
           description: Metrics ditemukan
+          content:
+            application/json:
+              example:
+                total_materi_selesai: 1773
+                avg_durasi_materi_detik: 5914.252115
+                total_review: 442
+                total_hari_aktif: 111
+                std_dev_materi_harian: 22.99129558
+                avg_skor_kuis: 71.45833333
+                pass_rate_kuis: 0.5982142857
+                total_kuis_diambil: 336
+                avg_rating_submission: 2.25862069
+                total_submissions: 58
+                last_calculated_at: "2025-11-10T23:23:16.146Z"
         "404":
           description: Metrics belum tersedia
 
@@ -74,6 +72,11 @@ paths:
       summary: Membuat / update metrics secara manual
       security:
         - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: integer }
       requestBody:
         required: true
         content:
@@ -89,14 +92,6 @@ paths:
               total_kuis_diambil: 4
               avg_rating_submission: 4.3
               total_submissions: 3
-              avg_durasi_article: 180
-              avg_durasi_exam: 900
-              avg_durasi_interactivecode: 600
-              avg_durasi_quiz: 300
-              count_article: 8
-              count_exam: 2
-              count_interactivecode: 3
-              count_quiz: 4
       responses:
         "200":
           description: Metrics berhasil diperbarui
@@ -108,9 +103,9 @@ paths:
       summary: Meminta prediksi insight baru via ML service
       description: >
         Backend otomatis memanggil ML service untuk:
-        - menghitung 18 fitur belajar,
-        - menentukan cluster,
-        - menyimpan metrics, insight, dan history.
+        - menghitung fitur belajar dari data,
+        - menentukan gaya belajar (learning_style),
+        - menyimpan metrics, insight terkini, dan history.
         Tidak perlu mengirim body.
       security:
         - bearerAuth: []
@@ -122,6 +117,13 @@ paths:
       responses:
         "200":
           description: Insight berhasil diproses
+          content:
+            application/json:
+              example:
+                student_id: 938276
+                learning_style: "Fast Learner"
+                confidence_score: 0.87
+                name: "Nur Rizki Adi Prasetyo"
         "404":
           description: User tidak ditemukan
 
@@ -137,6 +139,13 @@ paths:
       responses:
         "200":
           description: Insight ditemukan
+          content:
+            application/json:
+              example:
+                student_id: 938276
+                learning_style: "Fast Learner"
+                confidence_score: 0.87
+                updated_at: "2025-11-10T23:23:16.146Z"
         "404":
           description: Insight belum tersedia
 
