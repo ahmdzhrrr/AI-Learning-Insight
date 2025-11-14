@@ -1,4 +1,3 @@
-// src/services/insightsService.js
 import axios from 'axios'
 import { pool } from '../db/pool.js'
 import { getByUserId as getMetricsByUserId } from './metricsService.js'
@@ -6,10 +5,6 @@ import { getByUserId as getMetricsByUserId } from './metricsService.js'
 const ML_BASE_URL = process.env.ML_SERVICE_URL || 'http://127.0.0.1:8001'
 const ML_TIMEOUT = Number.parseInt(process.env.ML_HTTP_TIMEOUT_MS || '8000', 10)
 
-/**
- * Normalisasi payload dari ML service (FastAPI).
- * FastAPI mengembalikan: { status: 'success', data: { label, confidence, reasons, user_id, name, cluster_id } }
- */
 function normalizeMlResponse(respData) {
   const ml = respData?.data
   if (!ml || typeof ml !== 'object') {
@@ -46,13 +41,7 @@ async function buildFeaturesForUser(userId) {
   }
 }
 
-/**
- * Panggil ML, lalu simpan history & upsert current insight.
- * @param {{ userId: number, features?: object, useDbMetricsFallback?: boolean }} params
- * @returns {{ label: string, confidence: number, reasons: any[], cluster_id: number, user_id: number|null, name: string|null }}
- */
 export async function predictAndSave({ userId, features, useDbMetricsFallback = true }) {
-  // 0) Siapkan features (metrics)
   let payload = features
   if (!payload) {
     if (!useDbMetricsFallback) {
@@ -61,23 +50,18 @@ export async function predictAndSave({ userId, features, useDbMetricsFallback = 
     }
     payload = await buildFeaturesForUser(userId)
   }
-
-  // 1) Panggil ML (POST /predict)
+  
   const resp = await axios.post(
     `${ML_BASE_URL}/predict`,
     { student_id: userId, features: payload },
     { timeout: ML_TIMEOUT }
   )
 
-  // 2) Normalisasi respons ML
   const mlNorm = normalizeMlResponse(resp.data)
 
-  // 3) Simpan ke DB dalam transaksi
   const client = await pool.connect()
   try {
     await client.query('begin')
-
-    // History
     await client.query(
       `insert into insight_histories
         (student_id, label, confidence, reasons, raw_features, cluster_id, created_at)
@@ -91,8 +75,6 @@ export async function predictAndSave({ userId, features, useDbMetricsFallback = 
         mlNorm.cluster_id,
       ]
     )
-
-    // Current (upsert)
     await client.query(
       `insert into insights (student_id, label, confidence, reasons, cluster_id, updated_at)
        values ($1,$2,$3,$4::jsonb,$5, now())
@@ -118,8 +100,6 @@ export async function predictAndSave({ userId, features, useDbMetricsFallback = 
   } finally {
     client.release()
   }
-
-  // 4) Kembalikan payload ringkas yang konsisten
   return {
     label: mlNorm.label,
     confidence: mlNorm.confidence,
@@ -130,9 +110,6 @@ export async function predictAndSave({ userId, features, useDbMetricsFallback = 
   }
 }
 
-/**
- * Ambil insight terakhir dari tabel `insights`.
- */
 export async function getLastInsight(userId) {
   const { rows } = await pool.query(
     `select student_id, label, confidence, reasons, cluster_id, updated_at
@@ -143,12 +120,6 @@ export async function getLastInsight(userId) {
   return rows[0] || null
 }
 
-/**
- * List riwayat insight dari tabel `insight_histories`.
- * @param {number} userId
- * @param {number} limit
- * @param {number} offset
- */
 export async function listHistory(userId, limit = 20, offset = 0) {
   const { rows } = await pool.query(
     `select created_at, label, confidence, reasons, cluster_id, raw_features
