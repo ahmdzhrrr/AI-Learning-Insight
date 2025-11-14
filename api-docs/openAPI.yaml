@@ -1,0 +1,148 @@
+info:
+  title: AI Learning Insight API (with ML)
+  description: >
+    RESTful API untuk aplikasi AI Learning Insight.
+    Mendukung JWT auth, manajemen metrics, dan integrasi FastAPI ML service.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5000
+
+paths:
+
+  /auth/register:
+    post:
+      summary: Register user baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              email: "user@mail.com"
+              password: "secret123"
+              name: "User Example"
+      responses:
+        "201":
+          description: Registrasi berhasil
+        "400":
+          description: Bad Request
+
+  /auth/login:
+    post:
+      summary: Login untuk mendapatkan token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              email: "user@mail.com"
+              password: "secret123"
+      responses:
+        "200":
+          description: Login berhasil (mengembalikan access token)
+        "401":
+          description: Kredensial salah
+
+  /auth/me:
+    get:
+      summary: Mendapatkan data user saat ini
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Data user
+        "401":
+          description: Token tidak valid
+
+  /users/{userId}/metrics:
+    get:
+      summary: Melihat metrics user (18 fitur belajar)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Metrics ditemukan
+        "404":
+          description: Metrics belum tersedia
+
+    put:
+      summary: Membuat / update metrics secara manual
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              total_materi_selesai: 12
+              avg_durasi_materi_detik: 320.5
+              total_review: 5
+              total_hari_aktif: 7
+              std_dev_materi_harian: 1.2
+              avg_skor_kuis: 82.5
+              pass_rate_kuis: 0.8
+              total_kuis_diambil: 4
+              avg_rating_submission: 4.3
+              total_submissions: 3
+              avg_durasi_article: 180
+              avg_durasi_exam: 900
+              avg_durasi_interactivecode: 600
+              avg_durasi_quiz: 300
+              count_article: 8
+              count_exam: 2
+              count_interactivecode: 3
+              count_quiz: 4
+      responses:
+        "200":
+          description: Metrics berhasil diperbarui
+        "400":
+          description: Bad Request
+
+  /users/{userId}/insights:
+    post:
+      summary: Meminta prediksi insight baru via ML service
+      description: >
+        Backend otomatis memanggil ML service untuk:
+        - menghitung 18 fitur belajar,
+        - menentukan cluster,
+        - menyimpan metrics, insight, dan history.
+        Tidak perlu mengirim body.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Insight berhasil diproses
+        "404":
+          description: User tidak ditemukan
+
+    get:
+      summary: Mendapatkan insight terbaru user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Insight ditemukan
+        "404":
+          description: Insight belum tersedia
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

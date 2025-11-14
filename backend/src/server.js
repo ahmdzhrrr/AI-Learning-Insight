@@ -3,6 +3,7 @@ import express from 'express'
 import swaggerUi from 'swagger-ui-express'
 import YAML from 'yamljs'
 import cors from 'cors'
+import axios from 'axios'
 import authRoutes from './routes/auth.js'
 import metricsRoutes from './routes/metrics.js'
 import insightsRoutes from './routes/insights.js'
@@ -15,6 +16,23 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }))
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiDocument))
 app.get('/health', (_req, res) => res.json({ status: 'ok', ml: process.env.ML_SERVICE_URL || null }))
 app.get('/', (_req, res) => res.json({ message: '✅ Backend ready' }))
+// app.get('/api/debug/ml', async (_req, res) => {
+//   const mlUrl = process.env.ML_SERVICE_URL || 'http://127.0.0.1:8001'
+//   try {
+//     const resp = await axios.get(mlUrl)
+//     return res.json({
+//       ok: true,
+//       target: mlUrl,
+//       ml_response: resp.data
+//     })
+//   } catch (err) {
+//     return res.status(500).json({
+//       ok: false,
+//       target: mlUrl,
+//       error: err.message
+//     })
+//   }
+// })
 app.use('/auth', authRoutes)
 app.use(metricsRoutes)
 app.use(insightsRoutes)

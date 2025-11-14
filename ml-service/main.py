@@ -132,23 +132,38 @@ def hitung_fitur_user(user_id: int) -> Tuple[pd.DataFrame, str]:
     final_features_df = features_df.reindex(columns=FEATURE_COLUMNS_TOTAL, fill_value=0)
     return final_features_df, user_name
 
-def _predict_core(user_id: int) -> Tuple[str, int, str]:
+def _predict_core(user_id: int) -> Tuple[str, int, str, Dict[str, Any]]:
+    """
+    Return: (learning_style, cluster_id, user_name, raw_features_dict)
+    """
     try:
         fitur_user_df, user_name = hitung_fitur_user(user_id)
     except HTTPException as e:
         if e.status_code == 404:
-            return ("Not Active", -1, f"User {user_id}")
+            empty_df = pd.DataFrame(0, index=[0], columns=FEATURE_COLUMNS_TOTAL)
+            return ("Not Active", -1, f"User {user_id}", empty_df.iloc[0].to_dict())
         raise
+
+    raw_features_dict = fitur_user_df.iloc[0].to_dict()
+
     if fitur_user_df['total_materi_selesai'].iloc[0] == 0:
-        return ("Not Active", -1, user_name)
+        return ("Not Active", -1, user_name, raw_features_dict)
+
     fitur_scaled = scaler.transform(fitur_user_df.values)
     cluster_id = int(model.predict(fitur_scaled)[0])
     learning_style = CLUSTER_MAP.get(cluster_id, "Cluster Tidak Dikenal")
-    return (learning_style, cluster_id, user_name)
+
+    return (learning_style, cluster_id, user_name, raw_features_dict)
 
 @app.post("/predict")
 async def predict_post(payload: PredictIn):
-    learning_style, cluster_id, user_name = _predict_core(payload.student_id)
+    (
+        learning_style,
+        cluster_id,
+        user_name,
+        raw_features_dict,
+    ) = _predict_core(payload.student_id)
+
     if learning_style == "Not Active":
         return {
             "status": "success",
@@ -158,12 +173,15 @@ async def predict_post(payload: PredictIn):
                 "reasons": [],
                 "user_id": payload.student_id,
                 "name": user_name,
-                "cluster_id": -1
-            }
+                "cluster_id": -1,
+                "features": raw_features_dict,
+            },
         }
+
     reasons: List[Dict[str, Any]] = [
-        {"key": "total_materi_selesai", "op": ">=", "value": 1}
+        {"key": "total_materi_selesai", "op": ">=", "value": 1},
     ]
+
     return {
         "status": "success",
         "data": {
@@ -172,8 +190,9 @@ async def predict_post(payload: PredictIn):
             "reasons": reasons,
             "user_id": payload.student_id,
             "name": user_name,
-            "cluster_id": cluster_id
-        }
+            "cluster_id": cluster_id,
+            "features": raw_features_dict,
+        },
     }
 
 @app.post("/predict/")
