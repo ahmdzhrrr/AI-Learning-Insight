@@ -1,22 +1,24 @@
 **AI Learning Insight**
-adalah platform analisis pembelajaran berbasis AI yang membantu mendeteksi gaya belajar siswa berdasarkan data perilaku mereka dalam belajar.  
-Proyek ini terdiri dari tiga komponen utama:
+adalah platform analisis pembelajaran berbasis AI yang membantu mendeteksi gaya belajar siswa berdasarkan data perilaku mereka selama belajar.
 
+Proyek ini terdiri dari tiga komponen utama:
 - **Machine Learning Service (FastAPI + Python)**
-- **Backend API (Express + PostgreSQL)**
+- **Backend API (Express + PostgreSQL/Supabase)**
 - **Frontend Dashboard (React + Vite)**
---------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Struktur Proyek
 
+```
 AI-Learning-Insight/
-```
 |
-├── ml-service/       # FastAPI model inference service
-├── backend/          # Node.js RESTful API service
-├── frontend/         # React dashboard app
+├── ml-service/               # FastAPI model inference service (KMeans)
+|
+├── backend/                  # Node.js RESTful API (Express + Supabase)
+|
+└── frontend/                 # React dashboard app
 ```
---------------------------------------------------------------------------------------
-## Running Program
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Run Program
 
 1. Jalankan Machine Learning Service (FastAPI)
 ```
@@ -27,7 +29,7 @@ python main.py
 ```
 cd backend
 npm install
-node scripts/run-sql.js
+node scripts/run-sql.js      # menjalankan semua migration
 npm run dev
 ```
 3. Jalankan Frontend (React + Vite)
@@ -36,39 +38,59 @@ cd frontend
 npm install
 npm run dev
 ```
---------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Dokumentasi API
 
 1. openAPI.yaml
+   
+File ini adalah **API Contract** lengkap untuk backend, berisi:
+Endpoint utama:
+- `/auth/login`
+- `/auth/me`
+- `/users/{userId}/metrics`  → GET/PUT  
+- `/users/{userId}/insights` → GET/POST  
 
-File ini merupakan **API Contract** dalam format OpenAPI (YAML).  
-Berisi definisi lengkap endpoint backend, termasuk:
-- `/auth/register`, `/auth/login`, `/auth/me`
-- `/users/{userId}/metrics` (GET & PUT)
-- `/users/{userId}/insights` (GET & POST)
-Dokumen ini mencakup:
-- Struktur request & response  
-- Parameter path  
-- Status code  
-- Header Authorization (Bearer Token)  
-- Contoh payload
+Isi `openapi.yaml` mencakup:
+- Struktur request/response
+- Path params
+- Semua status code
+- Format Authorization Bearer Token
+- Contoh data
+- Schema seluruh endpoint
 
-Tujuan file:
-- Menjadi acuan untuk Frontend  
-- Menjaga konsistensi API Backend  
-- Bisa digunakan untuk Swagger UI  
+Kegunaan:
+- Menjadi acuan Frontend
+- Menjaga konsistensi API selama pengembangan
+- Menyediakan Swagger UI (via `/docs`)
 
 2. AI Learning Insight API (with ML).postman_collection.json
 
-File ini adalah koleksi Postman siap pakai untuk mengetes API:
-- Endpoint Auth, Metrics, Insights  
-- Contoh request body  
-- Contoh response  
-- Header otomatis  
-- Script penyimpanan token JWT setelah login  
---------------------------------------------------------------------------------------
-# 📌 Catatan Penting
-- Jika API berubah, **openAPI.yaml** dan **Postman Collection** harus diperbarui.  
-- Dokumentasi ini sangat penting untuk integrasi FE–BE–ML.
+Koleksi Postman siap pakai untuk:
+- Test login (JWT)
+- Test metrics
+- Test insights (prediksi ML)
+- Menjalankan debugging backend
+- Mengetes komunikasi FE ↔ BE ↔ ML
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Koleksi Postman sudah berisi script otomatis untuk menyimpan token JWT
+*Scripts untuk postman bagian POST Login:*
+```
+const json = pm.response.json();
+const token = json.data && json.data.access_token;
 
+if (token) {
+    pm.environment.set('bearerToken', token);
+    console.log('Token JWT disimpan:', token);
+} else {
+    console.warn('Gagal mengambil access_token dari respons login:', json);
+}
+```
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+## Catatan Penting (Wajib Dibaca)
 
+- Jika API backend berubah, **openAPI.yaml** dan **Postman Collection** harus ikut diperbarui.
+- Dokumentasi ini penting untuk integrasi:
+  - Machine Learning → Backend
+  - Backend → Frontend
+- Wajib menjalankan node scripts/run-sql.js sebelum start backend agar database terbuat.
+- Pastikan ML service berjalan sebelum testing endpoint insights.
