@@ -2,11 +2,11 @@ create table users (
   id bigint primary key,
   name text not null,
   email text unique not null,
-  password text not null,
+  password text not null
 );
 
 create table metrics (
-  student_id bigint primary key not null references users(id) on delete,
+  student_id bigint primary key not null references users(id) on delete cascade,
   total_materi_selesai integer default 0,
   avg_durasi_materi_detik double precision default 0,
   total_review integer default 0,
