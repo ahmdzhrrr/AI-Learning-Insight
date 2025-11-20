@@ -1,12 +1,12 @@
 insert into users (id, name, email, password) values
-  (96989,   'Inggih Wicaksono',       'igihcksn@gmail.com',                     '$2b$12$M525sEGvVAaUdDCQiMNW0.iXEVHW066vuy1W/jRC/QOKFp8JVSjSC'),
-  (938276,  'Nur Rizki Adi Prasetyo', 'nrizki@dicoding.com',                    '$2b$12$M525sEGvVAaUdDCQiMNW0.iXEVHW066vuy1W/jRC/QOKFp8JVSjSC'),
-  (5021477, 'rifath',                 'rifathali088@gmail.com',                '$2b$12$M525sEGvVAaUdDCQiMNW0.iXEVHW066vuy1W/jRC/QOKFp8JVSjSC'),
-  (5044844, 'LEDIS IDOLA',            '221113142@students.mikroskil.ac.id',    '$2b$12$M525sEGvVAaUdDCQiMNW0.iXEVHW066vuy1W/jRC/QOKFp8JVSjSC'),
-  (5051374, 'Fircan Ferdinand',       'kaslanafircan@gmail.com',               '$2b$12$M525sEGvVAaUdDCQiMNW0.iXEVHW066vuy1W/jRC/QOKFp8JVSjSC'),
-  (5181638, 'Anggit andreansyah',     'anggitandreansyah119@gmail.com',        '$2b$12$M525sEGvVAaUdDCQiMNW0.iXEVHW066vuy1W/jRC/QOKFp8JVSjSC'),
-  (5410562, 'Jeni Amanda',            'jeniamandaa@gmail.com',                 '$2b$12$M525sEGvVAaUdDCQiMNW0.iXEVHW066vuy1W/jRC/QOKFp8JVSjSC'),
-  (5410865, 'ramadhan oktarizaldi',   'roktarizaldi@gmail.com',                '$2b$12$M525sEGvVAaUdDCQiMNW0.iXEVHW066vuy1W/jRC/QOKFp8JVSjSC')
+  (96989, 'Inggih Wicaksono', 'igihcksn@gmail.com', '{{PASSWORD_HASH}}'),
+  (938276, 'Nur Rizki Adi Prasetyo', 'nrizki@dicoding.com', '{{PASSWORD_HASH}}'),
+  (5021477, 'rifath', 'rifathali088@gmail.com', '{{PASSWORD_HASH}}'),
+  (5044844, 'LEDIS IDOLA', '221113142@students.mikroskil.ac.id', '{{PASSWORD_HASH}}'),
+  (5051374, 'Fircan Ferdinand', 'kaslanafircan@gmail.com', '{{PASSWORD_HASH}}'),
+  (5181638, 'Anggit andreansyah', 'anggitandreansyah119@gmail.com', '{{PASSWORD_HASH}}'),
+  (5410562, 'Jeni Amanda', 'jeniamandaa@gmail.com', '{{PASSWORD_HASH}}'),
+  (5410865, 'ramadhan oktarizaldi', 'roktarizaldi@gmail.com', '{{PASSWORD_HASH}}')
 on conflict (id) do nothing;
 
 insert into metrics (
