@@ -30,6 +30,7 @@ python main.py
 cd backend
 npm install
 node scripts/run-sql.js      # menjalankan semua migration
+node scripts/seed.js
 npm run dev
 ```
 3. Jalankan Frontend (React + Vite)
@@ -94,3 +95,4 @@ if (token) {
   - Backend → Frontend
 - Wajib menjalankan node scripts/run-sql.js sebelum start backend agar database terbuat.
 - Pastikan ML service berjalan sebelum testing endpoint insights.
+
