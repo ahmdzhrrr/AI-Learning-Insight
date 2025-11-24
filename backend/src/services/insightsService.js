@@ -92,8 +92,6 @@ export async function predictAndSave({ developerId }) {
   const client = await pool.connect()
   try {
     await client.query('begin')
-
-    // Upsert developers (id + name)
     await client.query(
       `
       insert into developers (id, name)
