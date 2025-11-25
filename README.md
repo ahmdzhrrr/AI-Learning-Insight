@@ -41,37 +41,60 @@ npm run dev
 ```
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Dokumentasi API
+1. openapi.yaml
 
-1. openAPI.yaml
-   
-File ini adalah **API Contract** lengkap untuk backend, berisi:
-Endpoint utama:
-- `/auth/login`
-- `/auth/me`
-- `/users/{userId}/metrics`  → GET/PUT  
-- `/users/{userId}/insights` → GET/POST  
+Endpoint Utama
+🔐 Authentication
+POST /auth/login
+GET /auth/me
 
-Isi `openapi.yaml` mencakup:
-- Struktur request/response
-- Path params
-- Semua status code
-- Format Authorization Bearer Token
-- Contoh data
-- Schema seluruh endpoint
+📊 Learning Metrics
+GET /api/developers/{developerId}/metrics
+PUT /api/developers/{developerId}/metrics
+GET /api/developers/{developerId}/metrics/overview
+GET /api/developers/{developerId}/metrics/weekly
+GET /api/developers/{developerId}/metrics/history
 
-Kegunaan:
-- Menjadi acuan Frontend
-- Menjaga konsistensi API selama pengembangan
-- Menyediakan Swagger UI (via `/docs`)
+🧠 Insights (ML)
+POST /api/developers/{developerId}/insights
+GET /api/developers/{developerId}/insights
+
+Isi openapi.yaml:
+Struktur lengkap request & response
+Path parameter seperti developerId
+Semua kemungkinan status code
+Format Authorization Bearer Token
+Contoh response:
+   - metrics overview
+   - weekly progress
+   - historical performance
+   - insight dari ML
+Dokumentasi OpenAPI untuk Swagger UI
+
+Kegunaan openapi.yaml
+Acuan FE dalam integrasi API
+Menjaga konsistensi API sepanjang pengembangan
+Dipakai Swagger UI di route /docs
+Mempermudah debugging & review API
 
 2. AI Learning Insight API (with ML).postman_collection.json
+🔑 Login (JWT)
+👤 /auth/me
+📊 Metrics:
+   - Get Metrics
+   - Update Metrics (PUT)
+   - Overview Metrics
+   - Weekly Progress
+   - Historical Performance
+🧠 Insights:
+   - Predict Insight (via ML)
+   - Get Latest Insight
 
-Koleksi Postman siap pakai untuk:
-- Test login (JWT)
-- Test metrics
-- Test insights (prediksi ML)
-- Menjalankan debugging backend
-- Mengetes komunikasi FE ↔ BE ↔ ML
+Fungsi utama koleksi:
+Test seluruh endpoint dengan mudah
+Debug komunikasi FE → BE → ML
+Menyimpan JWT otomatis
+Menjalankan percobaan prediksi ML tanpa FE
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Koleksi Postman sudah berisi script otomatis untuk menyimpan token JWT
 *Scripts untuk postman bagian POST Login:*
@@ -89,10 +112,10 @@ if (token) {
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Catatan Penting (Wajib Dibaca)
 
-- Jika API backend berubah, **openAPI.yaml** dan **Postman Collection** harus ikut diperbarui.
+- Jika API backend berubah, **openAPI.yaml** dan **Postman Collection** harus ikut diperbarui agar Swagger & Postman tetap sinkron.
 - Dokumentasi ini penting untuk integrasi:
   - Machine Learning → Backend
   - Backend → Frontend
-- Wajib menjalankan node scripts/run-sql.js sebelum start backend agar database terbuat.
+- Wajib menjalankan node scripts/run-sql.js dan node scripts/seed.js sebelum start backend agar database terbuat dan memiliki isi.
 - Pastikan ML service berjalan sebelum testing endpoint insights.
-
+- Gunakan Session Pooler Supabase untuk koneksi.
