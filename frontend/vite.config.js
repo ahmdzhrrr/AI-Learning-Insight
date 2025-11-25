@@ -8,9 +8,22 @@ export default defineConfig({
     react({
       babel: {
         plugins: [['babel-plugin-react-compiler']],
-        
       },
     }),
     tailwindcss(),
   ],
+
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+      '/auth': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
+  },
 })

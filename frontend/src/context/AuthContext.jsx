@@ -1,64 +1,67 @@
-import { createContext, useState, useEffect } from "react";
-import api from "../config/api";
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  login as apiLogin,
+  logout as apiLogout,
+  getCurrentUser,
+} from "../services/auth";
 
-const AuthContext = createContext({});
+const AuthContext = createContext();
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-
-    if (storedUser && token) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-      }
-    }
-    setLoading(false);
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        const userData = await getCurrentUser();
+        setUser(userData);
+      }
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      localStorage.removeItem("access_token");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const login = async (email, password) => {
     try {
-      const response = await api.post("/auth/login", { email, password });
+      const response = await apiLogin(email, password);
+      const { access_token, user } = response.data;
 
-      // Struktur backend:
-      // {
-      //   status: "success",
-      //   data: {
-      //     access_token,
-      //     token_type,
-      //     user: { id, email, name }
-      //   }
-      // }
-      const { access_token, user } = response.data.data;
-
-      localStorage.setItem("token", access_token);
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("access_token", access_token);
       setUser(user);
+      navigate("/");
 
       return { success: true };
     } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Login gagal";
-
       return {
         success: false,
-        error: message,
+        error: error.response?.data?.message || "Login failed",
       };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    apiLogout();
     setUser(null);
+    navigate("/login");
   };
 
   const value = {

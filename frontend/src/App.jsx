@@ -1,3 +1,4 @@
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -5,9 +6,10 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import PrivateRoute from "./components/PrivateRoute";
+import Layout from "./components/Layout";
 
 function App() {
   return (
@@ -16,14 +18,16 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
-            path="/dashboard"
+            path="/"
             element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
+              <PrivateRoute>
+                <Layout />
+              </PrivateRoute>
             }
-          />
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          >
+            <Route index element={<Dashboard />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </Router>
