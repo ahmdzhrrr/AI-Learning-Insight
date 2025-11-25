@@ -9,9 +9,9 @@ async function main () {
   let sql = fs.readFileSync(filePath, 'utf8')
 
   const plainPassword = '12345'
-  console.log("🔐 Generating bcrypt hash for password:", plainPassword)
+  console.log('🔐 Generating bcrypt hash for password:', plainPassword)
   const hashedPassword = await bcrypt.hash(plainPassword, 12)
-  console.log("➡️ Hash:", hashedPassword)
+  console.log('➡️ Hash:', hashedPassword)
   sql = sql.replace(/{{PASSWORD_HASH}}/g, hashedPassword)
   console.log('\n🌱 Running scripts/seed.sql...\n')
 

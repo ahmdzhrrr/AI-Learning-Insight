@@ -13,7 +13,7 @@ const FEATURE_COLUMNS = [
   'avg_exam_score'
 ]
 
-function normalizeMlResponse(respBody) {
+function normalizeMlResponse (respBody) {
   const ml = respBody?.data
   if (!ml || typeof ml !== 'object') {
     const err = new Error('Invalid ML response shape (missing `data`)')
@@ -57,7 +57,7 @@ function normalizeMlResponse(respBody) {
   }
 }
 
-export async function predictAndSave({ developerId }) {
+export async function predictAndSave ({ developerId }) {
   developerId = parseInt(developerId, 10)
   if (Number.isNaN(developerId)) {
     const err = new Error('developerId must be an integer')
@@ -186,7 +186,7 @@ export async function predictAndSave({ developerId }) {
   }
 }
 
-export async function getLastInsight(developerId) {
+export async function getLastInsight (developerId) {
   developerId = parseInt(developerId, 10)
   const { rows } = await pool.query(
     `
@@ -208,7 +208,7 @@ export async function getLastInsight(developerId) {
   return rows[0] || null
 }
 
-export async function listHistory(developerId, limit = 20, offset = 0) {
+export async function listHistory (developerId, limit = 20, offset = 0) {
   developerId = parseInt(developerId, 10)
   const { rows } = await pool.query(
     `

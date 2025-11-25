@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 
 const SECRET = process.env.ACCESS_TOKEN_KEY || 'supersecret'
 
-export function requireAuth(req, res, next) {
+export function requireAuth (req, res, next) {
   const auth = req.headers.authorization || ''
   const [, token] = auth.split(' ')
 
@@ -12,11 +12,11 @@ export function requireAuth(req, res, next) {
 
   try {
     const payload = jwt.verify(token, SECRET)
-    req.user = { 
+    req.user = {
       id: payload.developerId,
       developerId: payload.developerId,
-      email: payload.email 
-    }    
+      email: payload.email
+    }
     next()
   } catch (err) {
     console.log('JWT verify failed:', err.message)

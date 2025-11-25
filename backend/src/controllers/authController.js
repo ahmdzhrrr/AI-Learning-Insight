@@ -3,7 +3,7 @@ import { findByEmail, verifyPassword } from '../services/userService.js'
 
 const SECRET = process.env.ACCESS_TOKEN_KEY || 'supersecret'
 
-export async function login(req, res, next) {
+export async function login (req, res, next) {
   try {
     const { email, password } = req.body
 
@@ -50,7 +50,7 @@ export async function login(req, res, next) {
   }
 }
 
-export async function me(req, res, next) {
+export async function me (req, res, next) {
   try {
     if (!req.user) {
       return res.status(401).json({

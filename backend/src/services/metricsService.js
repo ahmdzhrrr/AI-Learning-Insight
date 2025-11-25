@@ -75,3 +75,72 @@ export async function upsertDirect ({ developerId, metrics }) {
   await upsertLearningMetrics(developerId, metrics)
   return getMetricsByDeveloperId(developerId)
 }
+
+export async function getOverviewMetrics (developerId) {
+  const row = await getMetricsByDeveloperId(developerId)
+
+  if (!row) return null
+
+  const totalActiveDays = Number(row.total_active_days || 0)
+  const totalJourneys = Number(row.total_journeys_completed || 0)
+  const estimatedWeeklyCompleted =
+    totalActiveDays > 0 ? (totalJourneys / totalActiveDays) * 7 : 0
+
+  return {
+    developerId: row.developer_id,
+    avgStudyTimeHours: Number(row.avg_completion_time_hours || 0),
+    totalActiveDays,
+    totalJourneysCompleted: totalJourneys,
+    totalSubmissions: Number(row.total_submissions || 0),
+    rejectedSubmissions: Number(row.rejected_submissions || 0),
+    avgExamScore: Number(row.avg_exam_score || 0),
+    rejectionRatio: Number(row.rejection_ratio || 0),
+    clusterLabel: row.cluster_label,
+    estimatedWeeklyCompleted
+  }
+}
+
+export async function getWeeklyProgress (developerId) {
+  developerId = parseInt(developerId, 10)
+
+  const sql = `
+    select
+      date_trunc('week', created_at)::date as week_start,
+      avg(confidence_score)                as avg_confidence,
+      count(*)                             as total_insights
+    from insight_histories
+    where developer_id = $1
+    group by week_start
+    order by week_start;
+  `
+  const { rows } = await pool.query(sql, [developerId])
+
+  return rows.map(r => ({
+    weekStart: r.week_start,
+    avgConfidence: Number(r.avg_confidence || 0),
+    totalInsights: Number(r.total_insights || 0)
+  }))
+}
+
+export async function getHistoricalPerformance (developerId) {
+  developerId = parseInt(developerId, 10)
+
+  const sql = `
+    select
+      created_at,
+      learning_style,
+      confidence_score,
+      insight_text
+    from insight_histories
+    where developer_id = $1
+    order by created_at;
+  `
+  const { rows } = await pool.query(sql, [developerId])
+
+  return rows.map(r => ({
+    createdAt: r.created_at,
+    learningStyle: r.learning_style,
+    confidenceScore: Number(r.confidence_score || 0),
+    insightText: r.insight_text
+  }))
+}

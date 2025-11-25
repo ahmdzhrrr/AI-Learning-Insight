@@ -13,12 +13,12 @@ const openapiDocument = YAML.load('./openapi.yaml')
 app.use(express.json({ limit: '1mb' }))
 app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }))
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiDocument))
-app.get('/health', (_req, res) => 
-  res.json({ 
-    status: 'ok', 
-    ml: process.env.ML_SERVICE_URL || null 
-    })
-  )
+app.get('/health', (_req, res) =>
+  res.json({
+    status: 'ok',
+    ml: process.env.ML_SERVICE_URL || null
+  })
+)
 app.get('/', (_req, res) => res.json({ message: '✅ Backend ready' }))
 // debugging endpoint untuk cek koneksi ML service
 // app.get('/api/debug/ml', async (_req, res) => {

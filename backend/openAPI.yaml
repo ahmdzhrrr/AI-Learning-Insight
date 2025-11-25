@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: AI Learning Insight API (Updated)
+  title: AI Learning Insight API
   version: 1.0.0
   description: >
     API dengan JWT Auth, Learning Metrics, dan Insight Text dari ML Service.
@@ -72,6 +72,88 @@ paths:
       responses:
         "200":
           description: Metrics berhasil diperbarui
+  
+  /api/developers/{developerId}/metrics/overview:
+    get:
+      summary: Mendapatkan overview metrics developer (avg study time, total journey, exam score)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: developerId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Overview metrics ditemukan
+          content:
+            application/json:
+              example:
+                status: "success"
+                data:
+                  developerId: 3390
+                  avgStudyTimeHours: 2.3
+                  totalActiveDays: 133
+                  totalJourneysCompleted: 55
+                  totalSubmissions: 20
+                  rejectedSubmissions: 5
+                  avgExamScore: 79.8
+                  rejectionRatio: 0.49
+                  clusterLabel: 2
+                  estimatedWeeklyCompleted: 14
+
+  /api/developers/{developerId}/metrics/weekly:
+    get:
+      summary: Mendapatkan weekly progress developer
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: developerId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Weekly progress ditemukan
+          content:
+            application/json:
+              example:
+                status: "success"
+                data:
+                  - weekStart: "2025-11-03"
+                    avgConfidence: 0.82
+                    totalInsights: 3
+                  - weekStart: "2025-11-10"
+                    avgConfidence: 0.90
+                    totalInsights: 2
+
+  /api/developers/{developerId}/metrics/history:
+    get:
+      summary: Mendapatkan historical performance developer (timeline insights)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: developerId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Historical performance ditemukan
+          content:
+            application/json:
+              example:
+                status: "success"
+                data:
+                  - createdAt: "2025-11-20T02:18:22.120Z"
+                    learningStyle: "Reflective Learner"
+                    confidenceScore: 0.82
+                    insightText: "Anda belajar secara reflektif..."
+                  - createdAt: "2025-11-21T02:12:10.331Z"
+                    learningStyle: "Consistent Learner"
+                    confidenceScore: 0.91
+                    insightText: "Anda menunjukkan perilaku konsisten..."
+
 
   /api/developers/{developerId}/insights:
     post:

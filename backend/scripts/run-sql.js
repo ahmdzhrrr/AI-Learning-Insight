@@ -7,7 +7,7 @@ const { Client } = pkg
 
 const MIGRATIONS_DIR = path.resolve('src/db/migrations')
 
-async function runSqlFile(client, filePath) {
+async function runSqlFile (client, filePath) {
   const sql = fs.readFileSync(filePath, 'utf8')
   console.log(`\n🚀 Running migration: ${path.basename(filePath)}`)
   try {
@@ -18,7 +18,7 @@ async function runSqlFile(client, filePath) {
   }
 }
 
-async function main() {
+async function main () {
   const client = new Client({
     connectionString: process.env.SUPABASE_DB_URL,
     ssl: { rejectUnauthorized: false }

@@ -1,10 +1,10 @@
 import * as insights from '../services/insightsService.js'
 
-function getDeveloperIdFromParams(req) {
+function getDeveloperIdFromParams (req) {
   return req.params.developerId ?? req.params.userId
 }
 
-export async function createOrUpdateInsight(req, res, next) {
+export async function createOrUpdateInsight (req, res, next) {
   try {
     const rawId = getDeveloperIdFromParams(req)
     const result = await insights.predictAndSave({
@@ -20,7 +20,7 @@ export async function createOrUpdateInsight(req, res, next) {
   }
 }
 
-export async function getInsight(req, res, next) {
+export async function getInsight (req, res, next) {
   try {
     const rawId = getDeveloperIdFromParams(req)
     const data = await insights.getLastInsight(rawId)

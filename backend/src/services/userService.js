@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import { pool } from '../db/pool.js'
 
-export async function findByEmail(email) {
+export async function findByEmail (email) {
   const { rows } = await pool.query(
     `
     select
@@ -17,7 +17,7 @@ export async function findByEmail(email) {
   return rows[0] || null
 }
 
-export async function verifyPassword(plainPassword, hashedPassword) {
+export async function verifyPassword (plainPassword, hashedPassword) {
   if (!plainPassword || !hashedPassword) return false
   return bcrypt.compare(plainPassword, hashedPassword)
 }
