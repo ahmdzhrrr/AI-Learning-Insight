@@ -92,7 +92,6 @@ Koleksi Utama
    - Overview Metrics
    - Weekly Progress
    - Historical Performance
-   - 
 🧠 Insights:
    - Predict Insight (via ML)
    - Get Latest Insight
@@ -126,6 +125,7 @@ if (token) {
 - Wajib menjalankan node scripts/run-sql.js dan node scripts/seed.js sebelum start backend agar database terbuat dan memiliki isi.
 - Pastikan ML service berjalan sebelum testing endpoint insights.
 - Gunakan Session Pooler Supabase untuk koneksi.
+
 
 
 
