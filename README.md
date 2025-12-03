@@ -11,7 +11,7 @@ Proyek ini terdiri dari tiga komponen utama:
 ---
 
 ## Struktur Proyek
-
+---
 AI-Learning-Insight/
 |
 ├── ml-service/               # FastAPI model inference service (KMeans)
@@ -19,7 +19,7 @@ AI-Learning-Insight/
 ├── backend/                  # Node.js RESTful API (Express + Supabase)
 |
 └── frontend/                 # React dashboard app
-
+---
 ---
 
 ## Petunjuk Setup Environment
@@ -110,3 +110,4 @@ Fungsi utama:
   sebelum start backend.
 - ML Service harus berjalan sebelum testing endpoint /insights.
 - Gunakan Session Pooler Supabase untuk koneksi database.
+
