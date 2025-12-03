@@ -11,7 +11,7 @@ Proyek ini terdiri dari tiga komponen utama:
 ---
 
 ## Struktur Proyek
----
+
 AI-Learning-Insight/
 |
 ├── ml-service/               # FastAPI model inference service (KMeans)
@@ -19,7 +19,7 @@ AI-Learning-Insight/
 ├── backend/                  # Node.js RESTful API (Express + Supabase)
 |
 └── frontend/                 # React dashboard app
----
+
 ---
 
 ## Petunjuk Setup Environment
@@ -30,8 +30,6 @@ cd ml-service
 pip install -r requirements.txt  
 python main.py  
 
----
-
 2. Backend API (Node.js + Express)
 
 cd backend  
@@ -39,8 +37,6 @@ npm install
 node scripts/run-sql.js  
 node scripts/seed.js  
 npm run dev  
-
----
 
 3. Frontend (React + Vite)
 
