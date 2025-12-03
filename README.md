@@ -1,4 +1,4 @@
-# AI Learning Insight
+# AI Learning Insight - Prediksi Insight Performa Belajar Menggunakan Machine Learning
 
 ## Deskripsi Singkat Proyek
 AI Learning Insight adalah platform analisis pembelajaran berbasis Artificial Intelligence (AI) yang membantu mendeteksi gaya belajar siswa berdasarkan data perilaku mereka selama proses belajar. Sistem ini menggunakan Machine Learning untuk menganalisis aktivitas belajar dan menghasilkan insight berupa tipe gaya belajar, tingkat performa, serta rekomendasi peningkatan belajar.
@@ -8,11 +8,13 @@ Proyek ini terdiri dari tiga komponen utama:
 - Backend API (Express + PostgreSQL/Supabase)
 - Frontend Dashboard (React + Vite)
 
----
+--------------------------------------------------------
 
 ## Struktur Proyek
 
+
 AI-Learning-Insight/
+
 |
 ├── ml-service/               # FastAPI model inference service (KMeans)
 |
@@ -20,7 +22,7 @@ AI-Learning-Insight/
 |
 └── frontend/                 # React dashboard app
 
----
+------------------------------------------------------------------------------
 
 ## Petunjuk Setup Environment
 
@@ -106,4 +108,5 @@ Fungsi utama:
   sebelum start backend.
 - ML Service harus berjalan sebelum testing endpoint /insights.
 - Gunakan Session Pooler Supabase untuk koneksi database.
+
 
