@@ -79,6 +79,7 @@ http://localhost:5173
 ## Dokumentasi API
 
 1. OpenAPI (Swagger)
+
 File: openapi.yaml  
 Berisi:
 - Struktur lengkap request & response
@@ -87,9 +88,9 @@ Berisi:
 - Format Authorization Bearer Token
 - Dokumentasi Swagger UI di endpoint /docs
 
-2. Postman Collection  
-File: AI Learning Insight API (with ML).postman_collection.json  
+2. Postman Collection
 
+File: AI Learning Insight API (with ML).postman_collection.json  
 Fungsi utama:
 - Testing seluruh endpoint API
 - Debug komunikasi Frontend → Backend → ML
@@ -106,6 +107,7 @@ Fungsi utama:
   sebelum start backend.
 - ML Service harus berjalan sebelum testing endpoint /insights.
 - Gunakan Session Pooler Supabase untuk koneksi database.
+
 
 
 
