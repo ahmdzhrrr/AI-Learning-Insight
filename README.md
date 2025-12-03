@@ -8,7 +8,7 @@ Proyek ini terdiri dari tiga komponen utama:
 - Backend API (Express + PostgreSQL/Supabase)
 - Frontend Dashboard (React + Vite)
 
---------------------------------------------------------
+---
 
 ## Struktur Proyek
 
@@ -18,11 +18,13 @@ AI-Learning-Insight/
 |
 ├── ml-service/               # FastAPI model inference service (KMeans)
 |
+|
 ├── backend/                  # Node.js RESTful API (Express + Supabase)
+|
 |
 └── frontend/                 # React dashboard app
 
-------------------------------------------------------------------------------
+---
 
 ## Petunjuk Setup Environment
 
@@ -108,5 +110,6 @@ Fungsi utama:
   sebelum start backend.
 - ML Service harus berjalan sebelum testing endpoint /insights.
 - Gunakan Session Pooler Supabase untuk koneksi database.
+
 
 
