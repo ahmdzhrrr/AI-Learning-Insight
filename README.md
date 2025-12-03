@@ -1,16 +1,4 @@
-# AI Learning Insight
-
-## Deskripsi Singkat Proyek
-AI Learning Insight adalah platform analisis pembelajaran berbasis Artificial Intelligence (AI) yang membantu mendeteksi gaya belajar siswa berdasarkan data perilaku mereka selama proses belajar. Sistem ini menggunakan Machine Learning untuk menganalisis aktivitas belajar dan menghasilkan insight berupa tipe gaya belajar, tingkat performa, serta rekomendasi peningkatan belajar.
-
-Proyek ini terdiri dari tiga komponen utama:
-- Machine Learning Service (FastAPI + Python)
-- Backend API (Express + PostgreSQL/Supabase)
-- Frontend Dashboard (React + Vite)
-
----
-
-## Struktur Proyek
+**AI Learning Insight** adalah platform analisis pembelajaran berbasis AI yang membantu mendeteksi gaya belajar siswa berdasarkan data perilaku mereka selama belajar. Proyek ini terdiri dari tiga komponen utama: - **Machine Learning Service (FastAPI + Python)** - **Backend API (Express + PostgreSQL/Supabase)** - **Frontend Dashboard (React + Vite)** ---------------------------------------------------------------------------------------------------------------------------------------------------------------- ## Struktur Proyek
 AI-Learning-Insight/
 |
 ├── ml-service/               # FastAPI model inference service (KMeans)
@@ -18,94 +6,27 @@ AI-Learning-Insight/
 ├── backend/                  # Node.js RESTful API (Express + Supabase)
 |
 └── frontend/                 # React dashboard app
+---------------------------------------------------------------------------------------------------------------------------------------------------------------- ## Run Program 1. Jalankan Machine Learning Service (FastAPI)
+cd ml-service
+python main.py
+2. Jalankan Backend API (Node.js + Express)
+cd backend
+npm install
+node scripts/run-sql.js      # menjalankan semua migration
+node scripts/seed.js
+npm run dev
+3. Jalankan Frontend (React + Vite)
+cd frontend
+npm install
+npm run dev
+---------------------------------------------------------------------------------------------------------------------------------------------------------------- ## Dokumentasi API 1. openapi.yaml Endpoint Utama 🔐 Authentication - POST /auth/login - GET /auth/me 📊 Learning Metrics - GET /api/developers/{developerId}/metrics - PUT /api/developers/{developerId}/metrics - GET /api/developers/{developerId}/metrics/overview - GET /api/developers/{developerId}/metrics/weekly - GET /api/developers/{developerId}/metrics/history 🧠 Insights (ML) - POST /api/developers/{developerId}/insights - GET /api/developers/{developerId}/insights Isi openapi.yaml: - Struktur lengkap request & response - Path parameter seperti developerId - Semua kemungkinan status code - Format Authorization Bearer Token - Contoh response: - metrics overview - weekly progress - historical performance - insight dari ML - Dokumentasi OpenAPI untuk Swagger UI Kegunaan openapi.yaml - Acuan FE dalam integrasi API - Menjaga konsistensi API sepanjang pengembangan - Dipakai Swagger UI di route /docs - Mempermudah debugging & review API 2. AI Learning Insight API (with ML).postman_collection.json Koleksi Utama 🔑 Login (JWT) 👤 /auth/me 📊 Metrics: - Get Metrics - Update Metrics (PUT) - Overview Metrics - Weekly Progress - Historical Performance 🧠 Insights: - Predict Insight (via ML) - Get Latest Insight Fungsi utama koleksi: - Test seluruh endpoint dengan mudah - Debug komunikasi FE → BE → ML - Menyimpan JWT otomatis - Menjalankan percobaan prediksi ML tanpa FE ---------------------------------------------------------------------------------------------------------------------------------------------------------------- ## Koleksi Postman sudah berisi script otomatis untuk menyimpan token JWT *Scripts untuk postman bagian POST Login:*
+const json = pm.response.json();
+const token = json.data && json.data.access_token;
 
----
-
-## Petunjuk Setup Environment
-
-1. Machine Learning Service (FastAPI)
-
-cd ml-service  
-pip install -r requirements.txt  
-python main.py  
-
----
-
-2. Backend API (Node.js + Express)
-
-cd backend  
-npm install  
-node scripts/run-sql.js  
-node scripts/seed.js  
-npm run dev  
-
----
-
-3. Frontend (React + Vite)
-
-cd frontend  
-npm install  
-npm run dev  
-
----
-
-## Tautan Model Machine Learning
-Model Machine Learning telah tersedia di dalam repository pada folder berikut:
-
-ml-service/models/ 
-
-dan dapat diunduh melalui Google Drive berikut:
-
-https://drive.google.com/your-model-link-here 
-
-File model berupa format .pkl dan telah terintegrasi langsung dengan ML Service.
-
-## Cara Menjalankan Aplikasi
-
-1. Jalankan Machine Learning Service:
-cd ml-service  
-python main.py  
-
-2. Jalankan Backend API:
-cd backend  
-npm run dev  
-
-3. Jalankan Frontend Dashboard:
-cd frontend  
-npm run dev  
-
-4. Buka aplikasi melalui browser:
-http://localhost:5173  
-
----
-
-## Dokumentasi API
-
-1. OpenAPI (Swagger)
-File: openapi.yaml  
-Berisi:
-- Struktur lengkap request & response
-- Path parameter seperti developerId
-- Semua status code
-- Format Authorization Bearer Token
-- Dokumentasi Swagger UI di endpoint /docs
-
-2. Postman Collection  
-File: AI Learning Insight API (with ML).postman_collection.json  
-
-Fungsi utama:
-- Testing seluruh endpoint API
-- Debug komunikasi Frontend → Backend → ML
-- Menyimpan token JWT otomatis
-- Menjalankan prediksi ML tanpa frontend
-
----
-
-## Catatan Penting
-- Jika API backend berubah, openapi.yaml dan Postman Collection wajib diperbarui.
-- Wajib menjalankan:
-  node scripts/run-sql.js  
-  node scripts/seed.js  
-  sebelum start backend.
-- ML Service harus berjalan sebelum testing endpoint /insights.
-- Gunakan Session Pooler Supabase untuk koneksi database.
+if (token) {
+    pm.environment.set('bearerToken', token);
+    console.log('Token JWT disimpan:', token);
+} else {
+    console.warn('Gagal mengambil access_token dari respons login:', json);
+}
+---------------------------------------------------------------------------------------------------------------------------------------------------------------- ## Catatan Penting (Wajib Dibaca) - Jika API backend berubah, **openAPI.yaml** dan **Postman Collection** harus ikut diperbarui agar Swagger & Postman tetap sinkron. - Dokumentasi ini penting untuk integrasi: - Machine Learning → Backend - Backend → Frontend - Wajib menjalankan node scripts/run-sql.js dan node scripts/seed.js sebelum start backend agar database terbuat dan memiliki isi. - Pastikan ML service berjalan sebelum testing endpoint insights. - Gunakan Session Pooler Supabase untuk koneksi.
