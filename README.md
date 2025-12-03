@@ -22,25 +22,25 @@ AI-Learning-Insight/
 ## Petunjuk Setup Environment
 
 1. Machine Learning Service (FastAPI)
-
+```
 cd ml-service  
 pip install -r requirements.txt  
 python main.py  
-
+```
 2. Backend API (Node.js + Express)
-
+```
 cd backend  
 npm install  
 node scripts/run-sql.js  
 node scripts/seed.js  
 npm run dev  
-
+```
 3. Frontend (React + Vite)
-
+```
 cd frontend  
 npm install  
 npm run dev  
-
+```
 ---
 
 ## Tautan Model Machine Learning
@@ -54,23 +54,26 @@ https://drive.google.com/your-model-link-here
 
 File model berupa format .pkl dan telah terintegrasi langsung dengan ML Service.
 
+---
 ## Cara Menjalankan Aplikasi
 
 1. Jalankan Machine Learning Service:
+```
 cd ml-service  
 python main.py  
-
+```
 2. Jalankan Backend API:
+```
 cd backend  
 npm run dev  
-
+```
 3. Jalankan Frontend Dashboard:
+```
 cd frontend  
 npm run dev  
-
+```
 4. Buka aplikasi melalui browser:
 http://localhost:5173  
-
 ---
 
 ## Dokumentasi API
@@ -103,6 +106,7 @@ Fungsi utama:
   sebelum start backend.
 - ML Service harus berjalan sebelum testing endpoint /insights.
 - Gunakan Session Pooler Supabase untuk koneksi database.
+
 
 
 
