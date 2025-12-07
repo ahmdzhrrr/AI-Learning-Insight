@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { pool } from '../db/pool.js'
+import { getMetricsByDeveloperId } from '../services/metricsService.js'
 
 const ML_BASE_URL = process.env.ML_SERVICE_URL || 'http://127.0.0.1:8001'
 const ML_PREDICT_PATH = process.env.ML_PREDICT_PATH || '/predict'
@@ -65,9 +66,23 @@ export async function predictAndSave ({ developerId }) {
     throw err
   }
 
+  const metricsRow = await getMetricsByDeveloperId(developerId)
+
+  let featuresPayload = null
+  if (metricsRow) {
+    featuresPayload = {
+      total_active_days: metricsRow.total_active_days,
+      avg_completion_time_hours: metricsRow.avg_completion_time_hours,
+      total_journeys_completed: metricsRow.total_journeys_completed,
+      rejection_ratio: metricsRow.rejection_ratio,
+      avg_exam_score: metricsRow.avg_exam_score
+    }
+  }
+
   const resp = await axios.post(
     `${ML_BASE_URL}${ML_PREDICT_PATH}`,
-    { developer_id: developerId },
+    { developer_id: developerId,
+      features: featuresPayload},
     { timeout: ML_TIMEOUT }
   )
 
@@ -194,6 +209,7 @@ export async function predictAndSave ({ developerId }) {
     confidence_score: mlNorm.confidence_score,
     name: mlNorm.name ?? null,
     cluster_id: mlNorm.cluster_id,
+    cluster_label: mlNorm.cluster_id, 
     insight_text: mlNorm.insight_text ?? null,
     features: featuresFromMl
   }

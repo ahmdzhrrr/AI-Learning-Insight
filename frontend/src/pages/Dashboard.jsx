@@ -38,37 +38,43 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     if (!user?.id) return;
-
+  
     try {
       setLoading(true);
-      const [metricsData, insightsData, studyTime, weeklyProgress, historical] =
+  
+      const [metricsData, studyTime, weeklyProgress, historical] =
         await Promise.all([
           getMetrics(user.id),
-          getInsights(user.id).catch(() => null),
           getStudyTimeData(user.id).catch(() => []),
           getWeeklyProgressData(user.id).catch(() => []),
           getHistoricalData(user.id).catch(() => []),
         ]);
-
+  
       setMetrics(metricsData);
-      setInsights(insightsData);
       setStudyTimeData(studyTime);
       setWeeklyProgressData(weeklyProgress);
       setHistoricalData(historical);
+  
+      const newInsights = await generateInsights(user.id);
+      setInsights(newInsights);
+  
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleGenerateInsights = async () => {
     if (!user?.id) return;
 
     try {
       setGeneratingInsights(true);
-      const newInsights = await generateInsights(user.id);
-      setInsights(newInsights);
+      await generateInsights(user.id);
+
+      const latestInsight = await getInsights(user.id).catch(() => null);
+      setInsights(latestInsight);
     } catch (error) {
       console.error("Error generating insights:", error);
     } finally {
@@ -107,27 +113,16 @@ const Dashboard = () => {
                   Your Learning Style: {insights.learning_style}
                 </h2>
               </div>
-              <p className="text-white/90 mb-4">{insights.insight_text}</p>
+              <p className="text-white/90 mb-4 whitespace-pre-line">{insights.insight_text}</p>
               <div className="flex items-center space-x-4 text-sm">
                 <span className="bg-white/20 px-3 py-1 rounded-full">
                   Confidence: {(insights.confidence_score * 100).toFixed(0)}%
                 </span>
                 <span className="bg-white/20 px-3 py-1 rounded-full">
-                  Cluster: {insights.cluster_label || "N/A"}
+                  Cluster: {insights.label || insights.cluster_label || "N/A"}
                 </span>
               </div>
             </div>
-            <button
-              onClick={handleGenerateInsights}
-              disabled={generatingInsights}
-              className="ml-4 bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-colors disabled:opacity-50"
-            >
-              <RefreshCw
-                className={`h-5 w-5 ${
-                  generatingInsights ? "animate-spin" : ""
-                }`}
-              />
-            </button>
           </div>
         </div>
       )}

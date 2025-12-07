@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore")
 BASE_DIR = Path(__file__).resolve().parent
 
 # =========================================================
-# 1. KONFIGURASI PROFIL & TEMPLATE (ISI ASLI ANDA)
+# 1. KONFIGURASI PROFIL & TEMPLATE
 # =========================================================
 
 # 5 Fitur asli dari model Anda (sesuai CSV)
@@ -60,10 +60,7 @@ CLUSTER_PROFILES: Dict[int, Dict[str, Any]] = {
     },
 }
 
-# =========================================================
 # TEMPLATE KALIMAT INSIGHT UNTUK SETIAP CLUSTER
-# =========================================================
-
 CLUSTER_TEMPLATES: Dict[int, str] = {
     0: (
         "Aktivitas belajarmu masih jarang (sekitar {active_days:.0f} hari aktif), "
@@ -97,7 +94,7 @@ CLUSTER_TEMPLATES: Dict[int, str] = {
 data_storage: Dict[str, Any] = {}
 
 # =========================================================
-# 2. LIFESPAN (STRUKTUR YANG DIINGINKAN)
+# 2. LIFESPAN
 # =========================================================
 
 
@@ -105,7 +102,7 @@ data_storage: Dict[str, Any] = {}
 async def lifespan(app: FastAPI):
     print("Startup: Memuat model dan data...")
     try:
-        # Load Model & Scaler (Pakai pickle sesuai file asli Anda)
+        # Load Model & Scaler
         with open(BASE_DIR / "model" / "scaler.pkl", "rb") as f:
             data_storage["scaler"] = pickle.load(f)
 
@@ -115,7 +112,7 @@ async def lifespan(app: FastAPI):
         # Load Data CSV
         features_df = pd.read_csv(BASE_DIR / "data" / "clustered_students.csv")
 
-        # Validasi Kolom (Sesuai CSV Anda)
+        # Validasi Kolom
         if "developer_id" not in features_df.columns:
             raise ValueError("CSV harus memiliki kolom 'developer_id'.")
 
@@ -149,12 +146,12 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="AI Learning Insight API", version="1.0.0", lifespan=lifespan)
 
 # =========================================================
-# 3. PYDANTIC MODELS (STRUKTUR YANG DIINGINKAN)
+# 3. PYDANTIC MODELS
 # =========================================================
 
 
 class PredictIn(BaseModel):
-    developer_id: int  # Disesuaikan agar cocok dengan data Anda
+    developer_id: int
     features: Optional[Dict[str, Any]] = None
 
 
@@ -165,7 +162,7 @@ class PredictOutData(BaseModel):
     developer_id: int
     developer_name: str
     cluster_id: int
-    insight_text: str  # Tambahan agar insight Anda tetap muncul
+    insight_text: str
     features: Dict[str, Any]
 
 
@@ -188,10 +185,182 @@ class SimplePredictionOut(BaseModel):
 # =========================================================
 
 
-def _generate_insight_text(cluster_id: int, row: Dict[str, float]) -> str:
-    """Helper untuk membuat kalimat insight sesuai template asli"""
+def _build_confidence_note(confidence: float, features: Dict[str, float]) -> str:
+    """
+    Membuat kalimat singkat yang menjelaskan mengapa confidence segitu,
+    dengan kategori: 100, >=75, >=60, <60.
+    """
+    level = confidence * 100  # 0.85 -> 85
+
+    active_days = float(features.get("total_active_days", 0))
+    journeys = float(features.get("total_journeys_completed", 0))
+    score = float(features.get("avg_exam_score", 0))
+    rej_ratio = float(features.get("rejection_ratio", 0))
+
+    reasons: List[str] = []
+
+    # Tambah alasan berdasarkan fitur
+    if journeys >= 30:
+        reasons.append("jumlah journey yang kamu selesaikan sudah cukup banyak")
+    if score >= 75:
+        reasons.append("nilai ujianmu cenderung tinggi")
+    if rej_ratio < 0.4:
+        reasons.append("rasio submission yang ditolak tergolong rendah")
+    elif rej_ratio >= 0.5:
+        reasons.append(
+            "rasio submission yang ditolak cukup tinggi sehingga model melihat banyak percobaan dan revisi"
+        )
+    if active_days >= 200:
+        reasons.append("aktivitas belajarmu cukup sering dan konsisten")
+
+    # Kalau tidak ada alasan spesifik yang terpenuhi
+    if not reasons:
+        reasons.append("pola belajarmu cukup konsisten dengan profil gaya belajar ini")
+
+    # Kalimat pembuka berdasarkan level confidence (4 kategori)
+    if level == 100:
+        prefix = f"Prediksi gaya belajar ini sangat kuat, "
+    elif level >= 70:
+        prefix = f"Prediksi gaya belajar ini cukup meyakinkan, "
+    else:
+        prefix = f"Prediksi gaya belajar ini rendah, "
+
+    return prefix + "karena " + ", ".join(reasons) + "."
+
+
+def _build_reason_items(
+    cluster_id: int, confidence: float, features: Dict[str, Any]
+) -> List[Dict[str, Any]]:
+    """
+    Membuat list alasan (strength/weakness/neutral) untuk disimpan di JSON 'reasons'.
+    Bisa dipakai jika suatu saat ingin ditampilkan sebagai box terpisah di UI.
+    """
+    items: List[Dict[str, Any]] = []
+
+    active_days = float(features.get("total_active_days", 0))
+    journeys = float(features.get("total_journeys_completed", 0))
+    score = float(features.get("avg_exam_score", 0))
+    rej_ratio = float(features.get("rejection_ratio", 0))
+    avg_time = float(features.get("avg_completion_time_hours", 0))
+    level = confidence * 100
+
+    def add(reason_type: str, metric: str, value: Any, note: str):
+        items.append(
+            {
+                "type": reason_type,  # "strength" | "weakness" | "neutral"
+                "metric": metric,
+                "value": value,
+                "note": note,
+            }
+        )
+
+    # Strengths
+    if journeys >= 30:
+        add(
+            "strength",
+            "total_journeys_completed",
+            journeys,
+            "Kamu telah menyelesaikan cukup banyak journey sehingga pola belajarmu mulai terlihat jelas.",
+        )
+
+    if score >= 75:
+        add(
+            "strength",
+            "avg_exam_score",
+            score,
+            "Nilai ujianmu tergolong baik, menunjukkan pemahaman materi yang cukup kuat.",
+        )
+
+    if active_days >= 200:
+        add(
+            "strength",
+            "total_active_days",
+            active_days,
+            "Aktivitas belajarmu cukup sering dan konsisten.",
+        )
+
+    if rej_ratio < 0.4:
+        add(
+            "strength",
+            "rejection_ratio",
+            rej_ratio,
+            "Rasio submission yang ditolak cukup rendah, menandakan ketelitian yang baik.",
+        )
+
+    # Weaknesses
+    if journeys < 15:
+        add(
+            "weakness",
+            "total_journeys_completed",
+            journeys,
+            "Jumlah journey yang kamu selesaikan masih relatif sedikit.",
+        )
+
+    if score < 70:
+        add(
+            "weakness",
+            "avg_exam_score",
+            score,
+            "Nilai ujianmu masih perlu ditingkatkan agar pemahaman konsep lebih kuat.",
+        )
+
+    if rej_ratio >= 0.5:
+        add(
+            "weakness",
+            "rejection_ratio",
+            rej_ratio,
+            "Rasio submission yang ditolak cukup tinggi, menunjukkan masih banyak proses revisi.",
+        )
+
+    if avg_time > 2000:
+        add(
+            "weakness",
+            "avg_completion_time_hours",
+            avg_time,
+            "Waktu rata-rata menyelesaikan modul cukup panjang, kamu bisa mempertimbangkan pengelolaan waktu yang lebih efektif.",
+        )
+
+    # Neutral / ringkasan confidence
+    if level == 100:
+        note = "Model sangat yakin dengan prediksi ini."
+    elif level >= 75:
+        note = "Model cukup yakin dengan prediksi ini."
+    elif level >= 60:
+        note = "Model cukup meyakinkan, meskipun masih ada beberapa indikator yang tumpang tindih dengan cluster lain."
+    else:
+        note = "Model kurang yakin karena pola belajarmu mendekati beberapa cluster berbeda."
+
+    add("neutral", "confidence", round(level, 2), note)
+
+    return items
+
+
+def _reasons_to_paragraph(reasons: List[Dict[str, Any]]) -> str:
+    """
+    Mengubah list reasons menjadi paragraf penjelasan singkat (tanpa emoji),
+    yang akan digabungkan ke dalam insight_text.
+    """
+    if not reasons:
+        return ""
+
+    text_parts: List[str] = []
+
+    for r in reasons:
+        note = r.get("note", "")
+        if note:
+            text_parts.append(note)
+
+    # Gabungkan semua note menjadi satu paragraf
+    return " ".join(text_parts)
+
+
+def _generate_insight_text(
+    cluster_id: int, row: Dict[str, float], confidence: float
+) -> str:
+    """Buat insight utama berdasarkan template + kalimat confidence."""
     template = CLUSTER_TEMPLATES.get(cluster_id, "")
-    return template.format(
+
+    base = template.format(
         active_days=row.get("total_active_days", 0),
         avg_time_hours=row.get("avg_completion_time_hours", 0),
         journeys=row.get("total_journeys_completed", 0),
@@ -199,39 +368,82 @@ def _generate_insight_text(cluster_id: int, row: Dict[str, float]) -> str:
         score=row.get("avg_exam_score", 0),
     )
 
+    confidence_note = _build_confidence_note(confidence, row)
 
-def _predict_core(dev_id: int) -> Tuple[str, int, str, str, float, Dict[str, Any]]:
-    # 1. Cek Data di CSV
+    return f"{base} {confidence_note}"
+
+
+def _predict_core(
+    dev_id: int,
+    features_override: Optional[Dict[str, Any]] = None,
+) -> Tuple[str, int, str, str, float, Dict[str, Any], List[Dict[str, Any]]]:
+    """
+    Core prediction:
+    - Kalau features_override disediakan -> pakai itu (biasanya dari DB).
+    - Kalau tidak ada -> pakai fitur dari CSV (data_storage["features"]).
+    """
+
+    # 1. Coba ambil data dari CSV (untuk nama, dll)
+    base_series = None
     try:
-        user_data_series = data_storage["features"].loc[dev_id]
+        base_series = data_storage["features"].loc[dev_id]
     except KeyError:
-        # Jika user tidak ada di CSV
-        empty = {col: 0 for col in FEATURE_COLUMNS_TOTAL}
-        return ("Not Active", -1, "Unknown User", "User tidak ditemukan.", 0.0, empty)
+        base_series = None
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lookup error: {e}")
 
-    dev_name = str(user_data_series.get("developer_name", "Unknown"))
+    dev_name = (
+        str(base_series.get("developer_name", "Unknown"))
+        if base_series is not None
+        else "Unknown"
+    )
 
-    # Ambil 5 fitur penting
-    fitur_df = user_data_series[FEATURE_COLUMNS_TOTAL].to_frame().T
-    raw_features = fitur_df.iloc[0].to_dict()
+    # 2. Tentukan raw_features
+    if features_override:
+        # Pakai fitur dari request (misalnya dari database)
+        raw_features: Dict[str, float] = {}
+        for col in FEATURE_COLUMNS_TOTAL:
+            v = features_override.get(col, 0)
+            try:
+                raw_features[col] = float(v)
+            except (TypeError, ValueError):
+                raw_features[col] = 0.0
+    else:
+        # Fallback: pakai data dari CSV
+        if base_series is None:
+            empty = {col: 0.0 for col in FEATURE_COLUMNS_TOTAL}
+            return (
+                "Not Active",
+                -1,
+                dev_name,
+                "User tidak ditemukan.",
+                0.0,
+                empty,
+                [],
+            )
 
-    # 2. Cek apakah aktif (Logic: journeys > 0)
-    if raw_features["total_journeys_completed"] == 0:
+        fitur_df_csv = base_series[FEATURE_COLUMNS_TOTAL].to_frame().T
+        raw_features = fitur_df_csv.iloc[0].to_dict()
+
+    # 3. Cek apakah aktif (journey > 0)
+    if float(raw_features.get("total_journeys_completed", 0)) == 0:
         return (
             "Not Active",
             -1,
             dev_name,
             "User belum menyelesaikan journey.",
-            0.0,              # confidence 0 kalau belum aktif
+            0.0,
             raw_features,
+            [],
         )
 
-    # 3. Prediksi Model
+    # 4. Prediksi Model
     try:
         scaler = data_storage["scaler"]
         model = data_storage["model"]
+
+        # Buat DataFrame dari raw_features (urutan kolom tetap)
+        fitur_df = pd.DataFrame([raw_features])[FEATURE_COLUMNS_TOTAL]
 
         fitur_scaled = scaler.transform(fitur_df.values)
         cluster_id = int(model.predict(fitur_scaled)[0])
@@ -247,14 +459,24 @@ def _predict_core(dev_id: int) -> Tuple[str, int, str, str, float, Dict[str, Any
         profile = CLUSTER_PROFILES.get(cluster_id, {})
         label = profile.get("label_id", f"Cluster {cluster_id}")
 
-        # Generate Text Insight
-        insight_text = _generate_insight_text(cluster_id, raw_features)
+        # Insight utama + penjelasan confidence
+        insight_main = _generate_insight_text(cluster_id, raw_features, confidence)
+
+        # Alasan detail (strength/weakness/neutral)
+        reasons = _build_reason_items(cluster_id, confidence, raw_features)
+        reason_paragraph = _reasons_to_paragraph(reasons)
+
+        if reason_paragraph:
+            full_insight_text = insight_main + " " + reason_paragraph
+        else:
+            full_insight_text = insight_main
 
     except Exception as e:
         print(f"Prediction Error: {e}")
         raise HTTPException(status_code=500, detail="Gagal melakukan prediksi model.")
 
-    return (label, cluster_id, dev_name, insight_text, confidence, raw_features)
+    return (label,cluster_id, dev_name, full_insight_text, confidence, raw_features, reasons)
+
 
 
 # =========================================================
@@ -276,19 +498,14 @@ async def predict_post(payload: PredictIn):
         insight_text,
         confidence,
         raw_features,
-    ) = _predict_core(payload.developer_id)
+        reasons,
+    ) = _predict_core(payload.developer_id, payload.features)
 
     if label == "Not Active":
         # Response untuk user tidak aktif / tidak ketemu
         return PredictOutStatus(status="error", message=insight_text, data=None)
 
     # Response Sukses
-    # 'reasons' diisi simple logic agar sesuai struktur referensi
-    reasons = [
-        {"key": "total_journeys_completed", "op": ">", "value": 0},
-        {"key": "cluster_id", "value": cluster_id},
-    ]
-
     data_obj = PredictOutData(
         label=label,
         confidence=confidence,
@@ -296,7 +513,7 @@ async def predict_post(payload: PredictIn):
         developer_id=payload.developer_id,
         developer_name=dev_name,
         cluster_id=cluster_id,
-        insight_text=insight_text,  # Menampilkan insight yang sudah digenerate
+        insight_text=insight_text,  # insight utama + confidence + alasan
         features=raw_features,
     )
 
@@ -305,7 +522,15 @@ async def predict_post(payload: PredictIn):
 
 @app.get("/predict/{developer_id}", response_model=SimplePredictionOut)
 async def predict_style_get(developer_id: int):
-    (label, cluster_id, dev_name, insight, _confidence, _features) = _predict_core(developer_id)
+    (
+        label,
+        cluster_id,
+        dev_name,
+        insight,
+        _confidence,
+        _features,
+        _reasons,
+    ) = _predict_core(developer_id)
 
     status_msg = "Prediksi berhasil."
     if label == "Not Active":
@@ -318,6 +543,7 @@ async def predict_style_get(developer_id: int):
         cluster_id=cluster_id,
         status=status_msg,
     )
+
 
 if __name__ == "__main__":
     import uvicorn

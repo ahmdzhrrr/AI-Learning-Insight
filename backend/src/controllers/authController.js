@@ -30,8 +30,8 @@ export async function login (req, res, next) {
       })
     }
 
-    const payload = { id: user.id, email: user.email }
-    const token = jwt.sign(payload, SECRET, { expiresIn: '1h' })
+    const payload = { developerId: user.id, email: user.email }
+    const token = jwt.sign(payload, SECRET, { expiresIn: '12h' })
 
     return res.json({
       status: 'success',
