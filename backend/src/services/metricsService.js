@@ -49,6 +49,24 @@ export async function upsertLearningMetrics (developerId, metrics) {
   )
 }
 
+function OverallScore (metrics) {
+  const avgExam = Number(metrics.avg_exam_score) || 0
+  const totalJourneys = Number(metrics.total_journeys_completed) || 0
+  const activeDays = Number(metrics.total_active_days) || 0
+  const rejectionRatio = Number(metrics.rejection_ratio) || 0
+  const examScore = avgExam     
+  const journeyScore = Math.min(totalJourneys / 20, 1) * 100 
+  const activityScore = Math.min(activeDays / 100, 1) * 100
+  const submissionQuality = Math.max(0, (1 - rejectionRatio)) * 100
+  const overall =
+    0.50 * examScore +
+    0.20 * journeyScore +
+    0.20 * activityScore +
+    0.10 * submissionQuality
+
+  return Number(overall.toFixed(2))
+}
+
 export async function getMetricsByDeveloperId (developerId) {
   developerId = parseInt(developerId, 10)
 
@@ -65,7 +83,15 @@ export async function getMetricsByDeveloperId (developerId) {
     [developerId]
   )
 
-  return rows[0] || null
+  if (rows.length === 0) return null
+
+  const row = rows[0]
+  const overall_score = OverallScore(row)
+
+  return {
+    ...row,
+    overall_score
+  }
 }
 
 export async function getByUserId (userId) {

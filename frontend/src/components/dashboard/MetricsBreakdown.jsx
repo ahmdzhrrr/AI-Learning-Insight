@@ -71,11 +71,11 @@ const MetricsBreakdown = ({ metrics }) => {
             <div className="w-32 bg-gray-200 rounded-full h-2 mr-3">
               <div
                 className="bg-indigo-600 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${metrics.avg_exam_score || 0}%` }}
+                style={{ width: `${metrics.overall_score || 0}%` }}
               ></div>
             </div>
             <span className="text-indigo-700 font-bold">
-              {(metrics.avg_exam_score || 0).toFixed(0)}%
+              {(metrics.overall_score || 0).toFixed(1)}%
             </span>
           </div>
         </div>
