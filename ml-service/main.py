@@ -219,11 +219,11 @@ def _build_confidence_note(confidence: float, features: Dict[str, float]) -> str
 
     # Kalimat pembuka berdasarkan level confidence (4 kategori)
     if level == 100:
-        prefix = f"Prediksi gaya belajar ini sangat kuat, "
+        prefix = f"Gaya belajar ini sangat kuat, "
     elif level >= 70:
-        prefix = f"Prediksi gaya belajar ini cukup meyakinkan, "
+        prefix = f"Gaya belajar ini cukup meyakinkan, "
     else:
-        prefix = f"Prediksi gaya belajar ini rendah, "
+        prefix = f"Gaya belajar ini rendah, "
 
     return prefix + "karena " + ", ".join(reasons) + "."
 
@@ -320,20 +320,7 @@ def _build_reason_items(
             "Waktu rata-rata menyelesaikan modul cukup panjang, kamu bisa mempertimbangkan pengelolaan waktu yang lebih efektif.",
         )
 
-    # Neutral / ringkasan confidence
-    if level == 100:
-        note = "Model sangat yakin dengan prediksi ini."
-    elif level >= 75:
-        note = "Model cukup yakin dengan prediksi ini."
-    elif level >= 60:
-        note = "Model cukup meyakinkan, meskipun masih ada beberapa indikator yang tumpang tindih dengan cluster lain."
-    else:
-        note = "Model kurang yakin karena pola belajarmu mendekati beberapa cluster berbeda."
-
-    add("neutral", "confidence", round(level, 2), note)
-
     return items
-
 
 def _reasons_to_paragraph(reasons: List[Dict[str, Any]]) -> str:
     """
