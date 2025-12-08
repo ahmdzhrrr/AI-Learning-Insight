@@ -1,9 +1,8 @@
 # AI Learning Insight - Prediksi Insight Performa Belajar Menggunakan Machine Learning
 ---
 ## Profile
----
-## Team ID : A25-CS226
-## Members
+Team ID : A25-CS226
+Members
 - R007D5Y0207	Andhika Rizky Nur Wahyu
 - R007D5Y1928	Valenta Julyan Saputra
 - M251D5X0405	Cut Rifa Salsabil
@@ -119,3 +118,4 @@ Fungsi utama:
 
 ---
 Thank You 🙌
+
