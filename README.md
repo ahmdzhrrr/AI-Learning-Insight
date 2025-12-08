@@ -118,7 +118,4 @@ Fungsi utama:
 - Debug alur Backend - ML
 
 ---
-Thank You 🙌
-
-
-
+## Thank You 🙌
