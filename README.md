@@ -2,6 +2,7 @@
 ---
 ## Profile
 Team ID : A25-CS226
+
 Members
 - R007D5Y0207	Andhika Rizky Nur Wahyu
 - R007D5Y1928	Valenta Julyan Saputra
@@ -118,4 +119,5 @@ Fungsi utama:
 
 ---
 Thank You 🙌
+
 
