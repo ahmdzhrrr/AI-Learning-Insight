@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken'
 
-const SECRET = process.env.ACCESS_TOKEN_KEY || 'supersecret'
+const SECRET = process.env.ACCESS_TOKEN_KEY
+
+if (!SECRET) {
+  throw new Error('ACCESS_TOKEN_KEY env variable is required')
+}
 
 export function requireAuth (req, res, next) {
   const authHeader = req.headers.authorization

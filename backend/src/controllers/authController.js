@@ -1,7 +1,12 @@
 import jwt from 'jsonwebtoken'
 import { findByEmail, verifyPassword } from '../services/userService.js'
 
-const SECRET = process.env.ACCESS_TOKEN_KEY || 'supersecret'
+const SECRET = process.env.ACCESS_TOKEN_KEY
+const TOKEN_AGE = process.env.ACCESS_TOKEN_AGE || '12h'
+
+if (!SECRET) {
+  throw new Error('ACCESS_TOKEN_KEY env variable is required')
+}
 
 export async function login (req, res, next) {
   try {
@@ -31,7 +36,7 @@ export async function login (req, res, next) {
     }
 
     const payload = { developerId: user.id, email: user.email }
-    const token = jwt.sign(payload, SECRET, { expiresIn: '12h' })
+    const token = jwt.sign(payload, SECRET, { expiresIn: TOKEN_AGE })
 
     return res.json({
       status: 'success',
