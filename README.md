@@ -25,9 +25,9 @@ R007D5Y1928 – Valenta Julyan Saputra
 
 ---
 ## AI Learning Insight
-Machine Learning: [AI Learning Insight - ML](https://github.com/AI-Learning-Insight-A25-CS226/AI-Learning-Insight/tree/main/ml-service)
-Backend: AUDI -  [AI Learning Insight - BE](https://github.com/AI-Learning-Insight-A25-CS226/AI-Learning-Insight/tree/main/backend)
-Frontend: AUDI -  [AI Learning Insight - FE](https://github.com/AI-Learning-Insight-A25-CS226/AI-Learning-Insight/tree/main/frontend)
+- Machine Learning: [AI Learning Insight - ML](https://github.com/AI-Learning-Insight-A25-CS226/AI-Learning-Insight/tree/main/ml-service)
+- Backend: [AI Learning Insight - BE](https://github.com/AI-Learning-Insight-A25-CS226/AI-Learning-Insight/tree/main/backend)
+- Frontend: [AI Learning Insight - FE](https://github.com/AI-Learning-Insight-A25-CS226/AI-Learning-Insight/tree/main/frontend)
 
 ## Deskripsi Singkat Proyek
 AI Learning Insight adalah platform analisis pembelajaran berbasis Artificial Intelligence (AI) yang membantu mendeteksi gaya belajar siswa berdasarkan data perilaku mereka selama proses belajar. Sistem ini menggunakan Machine Learning untuk menganalisis aktivitas belajar dan menghasilkan insight berupa tipe gaya belajar, tingkat performa, serta rekomendasi peningkatan belajar.
@@ -119,5 +119,6 @@ Fungsi utama:
 
 ---
 Thank You 🙌
+
 
 
