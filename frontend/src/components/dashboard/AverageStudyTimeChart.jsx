@@ -42,6 +42,11 @@ const AverageStudyTimeChart = ({ data }) => {
 
   const chartData = data && data.length > 0 ? data : defaultData;
   const maxValue = Math.max(...chartData.map(d => d.hours));
+  const minValue = Math.min(...chartData.map(d => d.hours));
+  
+  // Calculate dynamic Y axis domain with padding
+  const yAxisMin = Math.max(0, Math.floor(minValue * 0.8));
+  const yAxisMax = Math.ceil(maxValue * 1.2) || 10; // Default to 10 if all values are 0
 
   // Gradient colors based on value
   const getBarColor = (value) => {
@@ -113,6 +118,8 @@ const AverageStudyTimeChart = ({ data }) => {
                 tickLine={false}
                 tick={{ fill: '#9ca3af', fontSize: 12 }}
                 dx={-10}
+                domain={[yAxisMin, yAxisMax]}
+                allowDataOverflow={false}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0, 67, 67, 0.05)' }} />
               <Bar 

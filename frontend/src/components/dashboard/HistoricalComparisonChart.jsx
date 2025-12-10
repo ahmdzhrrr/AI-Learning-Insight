@@ -18,7 +18,10 @@ const CustomTooltip = ({ active, payload, label }) => {
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 rounded-full bg-gradient-to-r from-violet-500 to-purple-500" />
           <span className="text-sm text-gray-600">
-            Score: <span className="font-semibold text-violet-600">{payload[0].value}%</span>
+            Score:{" "}
+            <span className="font-semibold text-violet-600">
+              {payload[0].value}%
+            </span>
           </span>
         </div>
       </div>
@@ -38,29 +41,40 @@ const HistoricalComparisonChart = ({ data }) => {
   ];
 
   const chartData = data && data.length > 0 ? data : defaultData;
-  
+
   // Calculate trend
-  const scores = chartData.map(d => d.score).filter(s => s > 0);
-  const avgScore = scores.length > 0 
-    ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) 
-    : 0;
-  
+  const scores = chartData.map((d) => d.score).filter((s) => s > 0);
+  const avgScore =
+    scores.length > 0
+      ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)
+      : 0;
+
   // Calculate growth
   const firstScore = scores[0] || 0;
   const lastScore = scores[scores.length - 1] || 0;
-  const growth = firstScore > 0 
-    ? (((lastScore - firstScore) / firstScore) * 100).toFixed(0) 
-    : 0;
+  const growth =
+    firstScore > 0
+      ? (((lastScore - firstScore) / firstScore) * 100).toFixed(0)
+      : 0;
+
+  // Calculate dynamic Y axis domain
+  const allScores = chartData.map((d) => d.score || 0);
+  const maxScore = Math.max(...allScores);
+  const minScore = Math.min(...allScores.filter((s) => s > 0)); // Get min of non-zero values
+  const yAxisMin = allScores.every((s) => s === 0)
+    ? 0
+    : Math.max(0, Math.floor((minScore || 0) * 0.8));
+  const yAxisMax = Math.ceil(maxScore * 1.2) || 100; // Default to 100 if all values are 0
 
   return (
     <div className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-500">
       {/* Header Gradient */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-violet-500" />
-      
+
       {/* Background Decoration */}
       <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-violet-500/5 to-purple-500/5 rounded-full blur-2xl" />
       <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-purple-500/5 to-violet-500/5 rounded-full blur-2xl" />
-      
+
       <div className="relative p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -75,7 +89,7 @@ const HistoricalComparisonChart = ({ data }) => {
               <p className="text-xs text-gray-500">Monthly score trends</p>
             </div>
           </div>
-          
+
           {/* Stats Badges */}
           <div className="hidden sm:flex items-center space-x-2">
             <div className="flex items-center space-x-1 px-3 py-1.5 rounded-full bg-violet-50 border border-violet-100">
@@ -96,9 +110,12 @@ const HistoricalComparisonChart = ({ data }) => {
         </div>
 
         {/* Chart */}
-        {chartData.some(d => d.score > 0) ? (
+        {chartData.some((d) => d.score > 0) ? (
           <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <AreaChart
+              data={chartData}
+              margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.4} />
@@ -110,28 +127,41 @@ const HistoricalComparisonChart = ({ data }) => {
                   <stop offset="50%" stopColor="#a78bfa" />
                   <stop offset="100%" stopColor="#8b5cf6" />
                 </linearGradient>
-                <filter id="areaShadow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#8b5cf6" floodOpacity="0.15"/>
+                <filter
+                  id="areaShadow"
+                  x="-20%"
+                  y="-20%"
+                  width="140%"
+                  height="140%"
+                >
+                  <feDropShadow
+                    dx="0"
+                    dy="4"
+                    stdDeviation="4"
+                    floodColor="#8b5cf6"
+                    floodOpacity="0.15"
+                  />
                 </filter>
               </defs>
-              <CartesianGrid 
-                strokeDasharray="3 3" 
-                stroke="#e5e7eb" 
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#e5e7eb"
                 vertical={false}
               />
-              <XAxis 
-                dataKey="month" 
+              <XAxis
+                dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 500 }}
+                tick={{ fill: "#6b7280", fontSize: 12, fontWeight: 500 }}
                 dy={10}
               />
-              <YAxis 
+              <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#9ca3af', fontSize: 12 }}
+                tick={{ fill: "#9ca3af", fontSize: 12 }}
                 dx={-10}
-                domain={[0, 100]}
+                domain={[yAxisMin, yAxisMax]}
+                allowDataOverflow={false}
               />
               <Tooltip content={<CustomTooltip />} />
               <Area
@@ -141,18 +171,18 @@ const HistoricalComparisonChart = ({ data }) => {
                 strokeWidth={3}
                 fill="url(#scoreGradient)"
                 filter="url(#areaShadow)"
-                dot={{ 
-                  fill: '#8b5cf6', 
-                  strokeWidth: 3, 
-                  stroke: '#fff', 
+                dot={{
+                  fill: "#8b5cf6",
+                  strokeWidth: 3,
+                  stroke: "#fff",
                   r: 5,
                 }}
-                activeDot={{ 
-                  r: 8, 
-                  fill: '#8b5cf6', 
-                  stroke: '#fff', 
+                activeDot={{
+                  r: 8,
+                  fill: "#8b5cf6",
+                  stroke: "#fff",
                   strokeWidth: 3,
-                  filter: 'drop-shadow(0 4px 6px rgba(139, 92, 246, 0.4))'
+                  filter: "drop-shadow(0 4px 6px rgba(139, 92, 246, 0.4))",
                 }}
               />
             </AreaChart>
@@ -163,7 +193,9 @@ const HistoricalComparisonChart = ({ data }) => {
               <Calendar className="h-8 w-8 text-gray-300" />
             </div>
             <p className="text-sm font-medium">No historical data available</p>
-            <p className="text-xs text-gray-400 mt-1">Complete courses to build your history</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Complete courses to build your history
+            </p>
           </div>
         )}
       </div>

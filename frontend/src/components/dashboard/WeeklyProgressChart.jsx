@@ -72,6 +72,13 @@ const WeeklyProgressChart = ({ data }) => {
   const totalTarget = chartData.reduce((acc, d) => acc + (d.target || 0), 0);
   const completionRate = totalTarget > 0 ? ((totalCompleted / totalTarget) * 100).toFixed(0) : 0;
 
+  // Calculate dynamic Y axis domain
+  const allValues = chartData.flatMap(d => [d.completed || 0, d.target || 0]);
+  const maxValue = Math.max(...allValues);
+  const minValue = Math.min(...allValues);
+  const yAxisMin = Math.max(0, Math.floor(minValue * 0.8));
+  const yAxisMax = Math.ceil(maxValue * 1.2) || 10; // Default to 10 if all values are 0
+
   return (
     <div className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-xl transition-all duration-500">
       {/* Header Gradient */}
@@ -134,6 +141,8 @@ const WeeklyProgressChart = ({ data }) => {
                 tickLine={false}
                 tick={{ fill: '#9ca3af', fontSize: 12 }}
                 dx={-10}
+                domain={[yAxisMin, yAxisMax]}
+                allowDataOverflow={false}
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend content={<CustomLegend />} />
