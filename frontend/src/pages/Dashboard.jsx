@@ -22,6 +22,9 @@ import {
   Target,
   Award,
   AlertCircle,
+  Sparkles,
+  Zap,
+  ChevronRight,
 } from "lucide-react";
 
 // ============================================
@@ -89,7 +92,6 @@ const Dashboard = () => {
           "🔐 Auth error detected in Dashboard, clearing intervals..."
         );
         clearAllIntervals();
-        // Tidak perlu logout manual, interceptor sudah handle
         return true;
       }
       return false;
@@ -341,10 +343,39 @@ const Dashboard = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          {/* Animated Loading */}
+          <div className="relative mb-8">
+            {/* Outer Ring */}
+            <div className="w-20 h-20 mx-auto border-4 border-primary/20 rounded-full" />
+            {/* Spinning Ring */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-20 border-4 border-transparent border-t-primary rounded-full animate-spin" />
+            {/* Center Icon */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+                <Brain className="h-6 w-6 text-white animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          <h3 className="text-lg font-semibold gradient-text mb-2">
+            Loading Dashboard
+          </h3>
+          <p className="text-gray-500 text-sm">
+            Preparing your learning analytics...
+          </p>
+
+          {/* Progress Dots */}
+          <div className="flex justify-center space-x-2 mt-4">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="w-2 h-2 bg-gradient-to-r from-primary to-secondary rounded-full animate-bounce"
+                style={{ animationDelay: `${i * 0.15}s` }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -353,15 +384,31 @@ const Dashboard = () => {
   // Error state
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 mb-4">{error}</p>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center max-w-md mx-auto px-4">
+          {/* Error Illustration */}
+          <div className="relative mb-6">
+            <div className="w-20 h-20 mx-auto bg-red-50 rounded-full flex items-center justify-center">
+              <AlertCircle className="h-10 w-10 text-red-500" />
+            </div>
+            {/* Decorative rings */}
+            <div
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 border-2 border-dashed border-red-200 rounded-full animate-spin"
+              style={{ animationDuration: "10s" }}
+            />
+          </div>
+
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            Oops! Something went wrong
+          </h3>
+          <p className="text-gray-500 mb-6">{error}</p>
+
           <button
             onClick={handleRefreshAll}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl text-white btn-primary shadow-lg shadow-primary/25"
           >
-            Try Again
+            <RefreshCw className="h-5 w-5" />
+            <span className="font-medium">Try Again</span>
           </button>
         </div>
       </div>
@@ -369,196 +416,284 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="px-4 py-6 sm:px-0">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+    <div className="space-y-8 animate-[fadeIn_0.5s_ease-out]">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="animate-[fadeInLeft_0.6s_ease-out]">
+          <div className="flex items-center space-x-3 mb-2">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-secondary shadow-lg shadow-primary/20">
+              <Sparkles className="h-5 w-5 text-white" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold gradient-text">
               Learning Dashboard
             </h1>
-            <p className="text-gray-600">
-              Track your learning progress and insights
-            </p>
           </div>
-
-          {/* Tombol Refresh Manual */}
-          <button
-            onClick={handleRefreshAll}
-            disabled={isRefreshingMetrics || isRefreshingCharts}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw
-              className={`h-4 w-4 ${
-                isRefreshingMetrics || isRefreshingCharts ? "animate-spin" : ""
-              }`}
-            />
-            Refresh
-          </button>
+          <p className="text-gray-500 flex items-center space-x-2">
+            <span>Track your learning progress and insights</span>
+            <ChevronRight className="h-4 w-4" />
+            <span className="text-primary font-medium">
+              Welcome back, {user?.name || "Learner"}!
+            </span>
+          </p>
         </div>
+
+        {/* Refresh Button */}
+        {/* <button
+          onClick={handleRefreshAll}
+          disabled={isRefreshingMetrics || isRefreshingCharts}
+          className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl text-white btn-primary shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed animate-[fadeInRight_0.6s_ease-out]"
+        >
+          <RefreshCw
+            className={`h-4 w-4 ${
+              isRefreshingMetrics || isRefreshingCharts ? "animate-spin" : ""
+            }`}
+          />
+          <span className="font-medium">Refresh All</span>
+        </button> */}
       </div>
 
       {/* Realtime Status Indicator */}
-      <RealtimeStatus
-        metricsInterval={REALTIME_CONFIG.METRICS_INTERVAL}
-        chartsInterval={REALTIME_CONFIG.CHARTS_INTERVAL}
-        insightsInterval={REALTIME_CONFIG.INSIGHTS_INTERVAL}
-        nextMetricsUpdate={nextMetricsUpdate}
-        nextChartsUpdate={nextChartsUpdate}
-        nextInsightsUpdate={nextInsightsUpdate}
-        lastMetricsUpdate={lastMetricsUpdate}
-        lastChartsUpdate={lastChartsUpdate}
-        lastInsightsUpdate={lastInsightsUpdate}
-        isRefreshingMetrics={isRefreshingMetrics}
-        isRefreshingCharts={isRefreshingCharts}
-      />
+      <div className="animate-[fadeInUp_0.6s_ease-out] delay-100">
+        <RealtimeStatus
+          metricsInterval={REALTIME_CONFIG.METRICS_INTERVAL}
+          chartsInterval={REALTIME_CONFIG.CHARTS_INTERVAL}
+          insightsInterval={REALTIME_CONFIG.INSIGHTS_INTERVAL}
+          nextMetricsUpdate={nextMetricsUpdate}
+          nextChartsUpdate={nextChartsUpdate}
+          nextInsightsUpdate={nextInsightsUpdate}
+          lastMetricsUpdate={lastMetricsUpdate}
+          lastChartsUpdate={lastChartsUpdate}
+          lastInsightsUpdate={lastInsightsUpdate}
+          isRefreshingMetrics={isRefreshingMetrics}
+          isRefreshingCharts={isRefreshingCharts}
+        />
+      </div>
 
       {/* Insights Section */}
       {insights && (
-        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg p-6 mb-8 text-white">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center mb-3">
-                <Brain className="h-6 w-6 mr-2" />
-                <h2 className="text-xl font-semibold">
-                  Your Learning Style: {insights.learning_style}
-                </h2>
-                {/* Indicator refresh insights */}
-                <span className="ml-3 text-xs bg-white/20 px-2 py-1 rounded-full">
-                  Update in {nextInsightsUpdate}s
-                </span>
-              </div>
-              <p className="text-white/90 mb-4 whitespace-pre-line">
-                {insights.insight_text}
-              </p>
-              <div className="flex items-center space-x-4 text-sm">
-                <span className="bg-white/20 px-3 py-1 rounded-full">
-                  Confidence: {(insights.confidence_score * 100).toFixed(0)}%
-                </span>
-                <span className="bg-white/20 px-3 py-1 rounded-full">
-                  Cluster: {insights.label || insights.cluster_label || "N/A"}
-                </span>
+        <div className="animate-[fadeInUp_0.6s_ease-out] delay-200">
+          <div className="relative overflow-hidden rounded-2xl shadow-xl">
+            {/* Background Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-light to-secondary" />
+
+            {/* Decorative Elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
+
+            {/* Grid Pattern */}
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+                backgroundSize: "24px 24px",
+              }}
+            />
+
+            <div className="relative p-6 sm:p-8">
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                <div className="flex-1">
+                  {/* Header */}
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm">
+                      <Brain className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold text-white">
+                        Your Learning Style
+                      </h2>
+                      <p className="text-white/70 text-sm">
+                        {insights.learning_style}
+                      </p>
+                    </div>
+
+                    {/* Update Timer Badge */}
+                    <span className="hidden sm:inline-flex items-center space-x-1 ml-3 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white/90 text-xs">
+                      <Zap className="h-3 w-3" />
+                      <span>Update in {nextInsightsUpdate}s</span>
+                    </span>
+                  </div>
+
+                  {/* Insight Text */}
+                  <p className="text-white/90 leading-relaxed mb-6 whitespace-pre-line">
+                    {insights.insight_text}
+                  </p>
+
+                  {/* Stats Badges */}
+                  <div className="flex flex-wrap gap-3">
+                    <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-white/20 backdrop-blur-sm">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="text-white text-sm font-medium">
+                        Confidence:{" "}
+                        {(insights.confidence_score * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-white/20 backdrop-blur-sm">
+                      <div className="w-2 h-2 rounded-full bg-amber-400" />
+                      <span className="text-white text-sm font-medium">
+                        Cluster:{" "}
+                        {insights.label || insights.cluster_label || "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Regenerate Button */}
+                <button
+                  onClick={handleGenerateInsights}
+                  disabled={generatingInsights}
+                  className="flex items-center justify-center space-x-2 px-5 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white transition-all duration-300 disabled:opacity-50 group"
+                >
+                  <RefreshCw
+                    className={`h-5 w-5 ${
+                      generatingInsights
+                        ? "animate-spin"
+                        : "group-hover:rotate-180 transition-transform duration-500"
+                    }`}
+                  />
+                  <span className="font-medium">Regenerate</span>
+                </button>
               </div>
             </div>
-
-            {/* Button regenerate insights */}
-            <button
-              onClick={handleGenerateInsights}
-              disabled={generatingInsights}
-              className="ml-4 p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors disabled:opacity-50"
-              title="Regenerate Insights"
-            >
-              <RefreshCw
-                className={`h-5 w-5 ${
-                  generatingInsights ? "animate-spin" : ""
-                }`}
-              />
-            </button>
           </div>
         </div>
       )}
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="relative">
-          <MetricCard
-            title="Active Days"
-            value={metrics?.total_active_days || 0}
-            icon={TrendingUp}
-            color="blue"
-          />
-          {isRefreshingMetrics && (
-            <div className="absolute top-2 right-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            </div>
-          )}
-        </div>
-        <div className="relative">
-          <MetricCard
-            title="Avg Completion Time"
-            value={`${metrics?.avg_completion_time_hours?.toFixed(1) || 0}h`}
-            icon={Clock}
-            color="green"
-          />
-          {isRefreshingMetrics && (
-            <div className="absolute top-2 right-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            </div>
-          )}
-        </div>
-        <div className="relative">
-          <MetricCard
-            title="Journeys Completed"
-            value={metrics?.total_journeys_completed || 0}
-            icon={Target}
-            color="purple"
-          />
-          {isRefreshingMetrics && (
-            <div className="absolute top-2 right-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            </div>
-          )}
-        </div>
-        <div className="relative">
-          <MetricCard
-            title="Avg Exam Score"
-            value={`${metrics?.avg_exam_score?.toFixed(1) || 0}%`}
-            icon={Award}
-            color="yellow"
-          />
-          {isRefreshingMetrics && (
-            <div className="absolute top-2 right-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            </div>
-          )}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {[
+          {
+            title: "Active Days",
+            value: metrics?.total_active_days || 0,
+            icon: TrendingUp,
+            color: "primary",
+            delay: 300,
+          },
+          {
+            title: "Avg Completion Time",
+            value: `${metrics?.avg_completion_time_hours?.toFixed(1) || 0}h`,
+            icon: Clock,
+            color: "emerald",
+            delay: 400,
+          },
+          {
+            title: "Journeys Completed",
+            value: metrics?.total_journeys_completed || 0,
+            icon: Target,
+            color: "cyan",
+            delay: 500,
+          },
+          {
+            title: "Avg Exam Score",
+            value: `${metrics?.avg_exam_score?.toFixed(1) || 0}%`,
+            icon: Award,
+            color: "amber",
+            delay: 600,
+          },
+        ].map((metric, index) => (
+          <div
+            key={index}
+            className="relative animate-[fadeInUp_0.6s_ease-out]"
+            style={{ animationDelay: `${metric.delay}ms` }}
+          >
+            <MetricCard
+              title={metric.title}
+              value={metric.value}
+              icon={metric.icon}
+              color={metric.color}
+            />
+            {isRefreshingMetrics && (
+              <div className="absolute top-3 right-3">
+                <span className="flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div className="relative">
+      {/* Charts Grid - Row 1 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div
+          className="relative animate-[fadeInUp_0.6s_ease-out]"
+          style={{ animationDelay: "700ms" }}
+        >
           <AverageStudyTimeChart data={studyTimeData} />
           {isRefreshingCharts && (
-            <div className="absolute top-4 right-4">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Updating...
+            <div className="absolute top-5 right-5">
+              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm">
+                <span className="flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs text-gray-600 font-medium">
+                  Updating...
+                </span>
               </div>
             </div>
           )}
         </div>
-        <div className="relative">
+
+        <div
+          className="relative animate-[fadeInUp_0.6s_ease-out]"
+          style={{ animationDelay: "800ms" }}
+        >
           <WeeklyProgressChart data={weeklyProgressData} />
           {isRefreshingCharts && (
-            <div className="absolute top-4 right-4">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Updating...
+            <div className="absolute top-5 right-5">
+              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm">
+                <span className="flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs text-gray-600 font-medium">
+                  Updating...
+                </span>
               </div>
             </div>
           )}
         </div>
       </div>
 
+      {/* Charts Grid - Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="relative">
+        <div
+          className="relative animate-[fadeInUp_0.6s_ease-out]"
+          style={{ animationDelay: "900ms" }}
+        >
           <HistoricalComparisonChart data={historicalData} />
           {isRefreshingCharts && (
-            <div className="absolute top-4 right-4">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Updating...
+            <div className="absolute top-5 right-5">
+              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm">
+                <span className="flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs text-gray-600 font-medium">
+                  Updating...
+                </span>
               </div>
             </div>
           )}
         </div>
-        <div className="relative">
+
+        <div
+          className="relative animate-[fadeInUp_0.6s_ease-out]"
+          style={{ animationDelay: "1000ms" }}
+        >
           <MetricsBreakdown metrics={metrics} />
           {isRefreshingMetrics && (
-            <div className="absolute top-4 right-4">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Updating...
+            <div className="absolute top-5 right-5">
+              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-gray-100 shadow-sm">
+                <span className="flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs text-gray-600 font-medium">
+                  Updating...
+                </span>
               </div>
             </div>
           )}
