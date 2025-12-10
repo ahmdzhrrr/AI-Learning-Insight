@@ -1,10 +1,14 @@
 import { Router } from 'express'
-import { login, me } from '../controllers/authController.js'
+import { login, me, refreshToken } from '../controllers/authController.js'
 import { requireAuth } from '../middlewares/authMiddleware.js'
 
-const r = Router()
+const router = Router()
 
-r.post('/login', login)
-r.get('/me', requireAuth, me)
+// Public routes
+router.post('/login', login)
 
-export default r
+// Protected routes
+router.get('/me', requireAuth, me)
+router.post('/refresh', requireAuth, refreshToken)
+
+export default router
