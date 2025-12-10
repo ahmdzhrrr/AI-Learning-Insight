@@ -3,7 +3,7 @@ import { findByEmail, verifyPassword } from '../services/userService.js'
 import { pool } from '../db/pool.js'
 
 const SECRET = process.env.ACCESS_TOKEN_KEY
-const TOKEN_AGE = process.env.ACCESS_TOKEN_AGE || '12h'
+const TOKEN_AGE = process.env.ACCESS_TOKEN_AGE || '43200'
 
 if (!SECRET) {
   throw new Error('ACCESS_TOKEN_KEY env variable is required')
